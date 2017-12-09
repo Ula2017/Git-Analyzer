@@ -1,4 +1,4 @@
-package git_analyzer.src.app.analysis;
+package app.analysis;
 
 public class Analyzer2 implements IAnalyzer {
 
