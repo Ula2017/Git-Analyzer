@@ -41,15 +41,6 @@ public class RepositoryOpener {
         return git;
     }
 
-    private  boolean hasAtLeastOneReference(Repository repo) {
-        for (Ref ref : repo.getAllRefs().values()) {
-            if (ref.getObjectId() == null)
-                continue;
-            return true;
-        }
-        return false;
-    }
-
     public boolean checkIfExists(){
         LsRemoteCommand lsCmd = new LsRemoteCommand(null);
         lsCmd.setRemote(repoUrl);
