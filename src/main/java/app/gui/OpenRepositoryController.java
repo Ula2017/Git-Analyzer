@@ -1,5 +1,6 @@
 package app.gui;
 
+import app.fetch.RepositoryOpener;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -17,12 +18,14 @@ import javafx.stage.Stage;
 public class OpenRepositoryController extends IController {
     private IController analysisMenuController;
     private IController mainController;
+    private RepositoryOpener repositoryOpener;
 
     public OpenRepositoryController(Stage primaryStage, IController mainController){
         this.primaryStage = primaryStage;
         this.scene = createScene();
         this.analysisMenuController = new AnalysisMenuController(primaryStage, this);
         this.mainController = mainController;
+        this.repositoryOpener = RepositoryOpener.getInstance();
     }
 
     @Override
@@ -51,13 +54,14 @@ public class OpenRepositoryController extends IController {
         openRepositoryBox.getChildren().add(repoPathTextField);
 
         Button openRepositoryButton = getButton("Open repository", 350, 55, () -> {
-//            if(fetcher.gitRepoExists(repoPathTextField.getText())){
-            if(repoPathTextField.getText().length() > 0){
-                repoPathTextField.clear();
-                this.analysisMenuController.show();
-            }
-            else{
-                repoPathTextField.setStyle("-fx-border-color: red");
+            repositoryOpener.setRepoUrl(repoPathTextField.getText());
+            if(repositoryOpener.checkIfExists()) {
+                if (repoPathTextField.getText().length() > 0) {
+                    repoPathTextField.clear();
+                    this.analysisMenuController.show();
+                } else {
+                    repoPathTextField.setStyle("-fx-border-color: red");
+                }
             }
         });
         openRepositoryBox.getChildren().add(openRepositoryButton);

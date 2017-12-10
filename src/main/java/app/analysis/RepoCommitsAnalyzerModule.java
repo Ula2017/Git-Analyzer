@@ -4,6 +4,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import app.fetch.Fetcher;
+import app.fetch.RepositoryOpener;
+import org.eclipse.jgit.api.FetchCommand;
+import org.eclipse.jgit.api.Git;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
@@ -29,10 +33,10 @@ public class RepoCommitsAnalyzerModule implements IAnalyzerModule{
 			//System.out.println(i + "  " + trialList.get(i));
 		}
 		this.dateTimeList = trialList;
-		
-		
+
+
 		//jak dziewczyny dodadza swoj modul to tutaj trzeba bedzie dodac import i to odkomentowac, a to na gorze zakomentowac
-		//this.dateTimeList = getCommitsDates();							
+		//this.dateTimeList = fetcher.getCommitsDates();
 	}
 	
 	private XYDataset createDataset(){
