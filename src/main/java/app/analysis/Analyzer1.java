@@ -8,7 +8,7 @@ public class Analyzer1 implements IAnalyzer {
 
     public Analyzer1(){
         modules = Arrays.asList(
-                new AnalyzerModule2()
+                new RepoCommitsAnalyzerModule()
         );
     }
 
