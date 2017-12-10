@@ -1,5 +1,19 @@
 package app.analysis;
 
-public class Analyzer1 implements IAnalyzer {
+import java.util.Arrays;
+import java.util.List;
 
+public class Analyzer1 implements IAnalyzer {
+    private List<IAnalyzerModule> modules;
+
+    public Analyzer1(){
+        modules = Arrays.asList(
+                new AnalyzerModule2()
+        );
+    }
+
+    @Override
+    public List<IAnalyzerModule> getModules(){
+        return modules;
+    }
 }

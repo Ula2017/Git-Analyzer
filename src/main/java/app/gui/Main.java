@@ -1,5 +1,6 @@
 package app.gui;
 
+import com.sun.glass.ui.Screen;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -8,10 +9,11 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception{
         primaryStage.setTitle("Git Analyzer");
         primaryStage.setResizable(false);
-        primaryStage.setMinWidth(primaryStage.getWidth());
-        primaryStage.setMinHeight(primaryStage.getHeight());
+        primaryStage.setMinWidth(Screen.getMainScreen().getVisibleWidth());
+        primaryStage.setMinHeight(Screen.getMainScreen().getVisibleHeight());
+        IController.width = Screen.getMainScreen().getVisibleWidth();
+        IController.heigth = Screen.getMainScreen().getVisibleHeight();
 
-        Controller controller = new Controller(primaryStage);
-        controller.start();
+        new MainController(primaryStage).show();
     }
 }

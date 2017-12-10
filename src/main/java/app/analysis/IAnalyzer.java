@@ -1,5 +1,7 @@
 package app.analysis;
 
-public interface IAnalyzer{
+import java.util.List;
 
+public interface IAnalyzer{
+    List<IAnalyzerModule> getModules();
 }
