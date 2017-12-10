@@ -55,7 +55,7 @@ public class RepositoryOpener {
         lsCmd.setRemote(repoUrl);
         try
         {
-            System.out.println(lsCmd.call().toString());
+            lsCmd.call().toString();
         }catch (GitAPIException e){
             return false;
         }
