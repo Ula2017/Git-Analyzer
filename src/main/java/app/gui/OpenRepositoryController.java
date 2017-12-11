@@ -55,20 +55,26 @@ public class OpenRepositoryController extends IController {
 
         Button openRepositoryButton = getButton("Open repository", 350, 55, () -> {
             repositoryOpener.setRepoUrl(repoPathTextField.getText());
-            if(repositoryOpener.checkIfExists()) {
-                if (repoPathTextField.getText().length() > 0) {
-                    repoPathTextField.clear();
-                    this.analysisMenuController.show();
-                } else {
-                    repoPathTextField.setStyle("-fx-border-color: red");
-                }
-            }
-        });
-        openRepositoryBox.getChildren().add(openRepositoryButton);
+            //System.out.println(repositoryOpener.checkIfExistsLocal());
 
+            if (repositoryOpener.checkIfExistsRemote()) {
+                repoPathTextField.clear();
+                this.analysisMenuController.show();
+            } else {
+                repositoryOpener.setRepoUrl(null);
+                repoPathTextField.setStyle("-fx-border-color: red");
+            }
+            repositoryOpener.getRepo();
+                }
+        );
+        openRepositoryBox.getChildren().add(openRepositoryButton);
         Button openRepositoryBackButton = getButton("Back", 350, 55, () -> { repoPathTextField.clear(); mainController.show(); });
         openRepositoryBox.getChildren().add(openRepositoryBackButton);
 
         return new Scene(openRepositoryGrid, width, heigth);
+    }
+
+    public RepositoryOpener getRepositoryOpener() {
+        return repositoryOpener;
     }
 }

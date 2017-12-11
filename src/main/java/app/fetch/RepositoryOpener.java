@@ -5,56 +5,101 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.LsRemoteCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.JGitInternalException;
+import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.RepositoryCache;
+import org.eclipse.jgit.util.FS;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 
 public class RepositoryOpener {
 
     private Git git;
     private String repoUrl;
+    private static RepositoryOpener instance;
 
-    private RepositoryOpener(){}
-
-    private static RepositoryOpener INSTANCE;
+    protected RepositoryOpener(){
+    }
 
     public static RepositoryOpener getInstance(){
-        if(INSTANCE == null)
-            INSTANCE = new RepositoryOpener();
-        return INSTANCE;
+        if(instance == null) {
+            instance = new RepositoryOpener();
+        }
+        return instance;
     }
 
     public Git getRepo() {
-
-        //TODO-check if repo is already cloned
+        Git tmp=null;
         try{
-            git = Git.cloneRepository()
+            tmp = Git.cloneRepository()
                     .setURI(repoUrl)
                     .call();
         }
         catch (JGitInternalException e){
             System.out.println("Already cloned");
+            tmp = this.git;
         }
         catch (GitAPIException e) {
             e.printStackTrace();
         }
 
-        return git;
+        return tmp;
     }
 
-    public boolean checkIfExists(){
-        LsRemoteCommand lsCmd = new LsRemoteCommand(null);
-        lsCmd.setRemote(repoUrl);
-        try
-        {
-            lsCmd.call().toString();
-        }catch (GitAPIException e){
-            return false;
+    public boolean checkIfExistsRemote(){
+
+        boolean result;
+        InputStream ins = null;
+        try {
+            URLConnection conn = new URL(repoUrl).openConnection();
+            ins = conn.getInputStream();
+            result = true;
+        } catch (Exception e) {
+            result = false;
+        } finally {
+            try {
+                if(ins != null) {
+                    ins.close();
+                }
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-        return true;
+        return result;
+
+    }
+//    public boolean checkIfExistsLocal() {
+//        boolean result;
+//
+////        try {
+////            System.out.println(new FileRepository("C:\\Users\\Ula\\IdeaProjects\\Git-Analyzer\\Sejmometr").getObjectDatabase().exists());
+////            result=false;
+////        } catch (IOException e) {
+////            result = false;
+////        }
+////        System.out.println(result);
+//        if (RepositoryCache.FileKey.isGitRepository(new File("C:\\Users\\Ula\\IdeaProjects\\Git-Analyzer\\Sejmometr"), FS.DETECTED)) {
+//            System.out.println("isntije");
+//            return true;
+//        }
+//        return false;
+//    }
+    public void setRepoUrl(String repoUrl) {
+        this.repoUrl = repoUrl;
     }
 
-    public void setRepoUrl(String repoUrl){
-        this.repoUrl = repoUrl;
+    public String getRepoUrl() {
+        return repoUrl;
+    }
+
+    public Git getGit(){
+        return git;
     }
 
 }

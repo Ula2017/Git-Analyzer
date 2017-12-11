@@ -11,13 +11,16 @@ import java.util.stream.Collectors;
 
 public class Fetcher {
 
-    private static Git git;
+    private Git git;
+    private RepositoryOpener repositoryOpener;
 
-    public Fetcher(Git git){
-        this.git = git;
+    public Fetcher(){
+        this.repositoryOpener=RepositoryOpener.getInstance();
+        this.git = repositoryOpener.getGit();
     }
 
     public List<CommitDetails> getAllCommits(){
+        System.out.println(repositoryOpener.getRepoUrl());
         List<CommitDetails> commitDetailsList = new ArrayList<CommitDetails>();
         try{
             Iterable<RevCommit> logs = git.log().call();
