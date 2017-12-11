@@ -1,6 +1,7 @@
 package app.fetch;
 
 import com.sun.org.apache.regexp.internal.RE;
+import com.sun.xml.internal.bind.v2.TODO;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.LsRemoteCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -18,6 +19,8 @@ import java.net.URLConnection;
 
 public class RepositoryOpener {
 
+
+    private Repository repository;
     private Git git;
     private String repoUrl;
     private static RepositoryOpener instance;
@@ -33,11 +36,14 @@ public class RepositoryOpener {
     }
 
     public Git getRepo() {
+
         Git tmp=null;
         try{
             tmp = Git.cloneRepository()
                     .setURI(repoUrl)
                     .call();
+            this.git=tmp;
+            this.repository = git.getRepository();
         }
         catch (JGitInternalException e){
             System.out.println("Already cloned");
@@ -74,7 +80,7 @@ public class RepositoryOpener {
         return result;
 
     }
-//    public boolean checkIfExistsLocal() {
+    //    public boolean checkIfExistsLocal() {
 //        boolean result;
 //
 ////        try {
