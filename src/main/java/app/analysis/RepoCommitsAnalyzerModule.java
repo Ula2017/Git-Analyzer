@@ -4,10 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import app.fetch.Fetcher;
-import app.fetch.RepositoryOpener;
-import org.eclipse.jgit.api.FetchCommand;
-import org.eclipse.jgit.api.Git;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
@@ -68,7 +64,7 @@ public class RepoCommitsAnalyzerModule implements IAnalyzerModule{
 	
 	private String createDiagram(){
 		//sciezka... ok?
-		String path = "file:images/commitsChart.jpg";
+		String path = "images/bum.jpg";
 		int width = 640;    
 	    int height = 480;
 	    
@@ -81,6 +77,7 @@ public class RepoCommitsAnalyzerModule implements IAnalyzerModule{
 	    try {
 			ChartUtilities.saveChartAsJPEG(new File(path), chart, width, height);
 		} catch (Exception e) {
+			e.printStackTrace();
 			System.out.println("Problem occurred creating chart.");
 		}
 		
@@ -92,9 +89,11 @@ public class RepoCommitsAnalyzerModule implements IAnalyzerModule{
         return this.getClass().getName();
     }
 
+	
+
     @Override
     public String generateFile() {    	
     	String path = createDiagram();    	
-        return path;
+        return "file:"+path;
     }
 }
