@@ -8,7 +8,7 @@ public class Analyzer2 implements IAnalyzer {
 
     public Analyzer2(){
         modules = Arrays.asList(
-                new AnalyzerModule1()
+                new MonthlyAuthorsCounterAnalyzerModule()
         );
     }
 
