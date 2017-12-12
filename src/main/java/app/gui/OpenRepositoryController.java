@@ -55,16 +55,16 @@ public class OpenRepositoryController extends IController {
 
         Button openRepositoryButton = getButton("Open repository", 350, 55, () -> {
                     repositoryOpener.setRepoUrl(repoPathTextField.getText());
-                    //System.out.println(repositoryOpener.checkIfExistsLocal());
 
                     if (repositoryOpener.checkIfExistsRemote()) {
                         repoPathTextField.clear();
+                        repositoryOpener.getRepo();
                         this.analysisMenuController.show();
                     } else {
                         repositoryOpener.setRepoUrl(null);
                         repoPathTextField.setStyle("-fx-border-color: red");
                     }
-                    repositoryOpener.getRepo();
+
                 }
         );
         openRepositoryBox.getChildren().add(openRepositoryButton);

@@ -20,7 +20,7 @@ public class Fetcher {
     }
 
     public List<CommitDetails> getAllCommits(){
-        System.out.println(repositoryOpener.getRepoUrl());
+
         List<CommitDetails> commitDetailsList = new ArrayList<CommitDetails>();
         try{
             Iterable<RevCommit> logs = git.log().call();
@@ -40,6 +40,10 @@ public class Fetcher {
         return commitDetailsList.stream().filter(d->d.getCommitDate().isAfter(startDate)).filter(d->d.getCommitDate().isBefore(endDate)).collect(Collectors.toList());
     }
 
+    public List<CommitDetails> getMonthlyRaport(int month, int year){
+        return getCommitsFiltered(new DateTime(year, month, 1, 0, 0),new DateTime(year, month, 31,23,59));
+    }
+
 
     public List<DateTime> getCommitsDates(){
         List<CommitDetails> commitDetailsList = getAllCommits();
@@ -47,4 +51,12 @@ public class Fetcher {
     }
 
 
+
+    public RepositoryOpener getRepositoryOpener() {
+        return repositoryOpener;
+    }
+
+    public Git getGit() {
+        return git;
+    }
 }

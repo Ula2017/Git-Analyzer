@@ -9,13 +9,13 @@ import org.eclipse.jgit.api.errors.JGitInternalException;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.lib.RepositoryCache;
-import org.eclipse.jgit.util.FS;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+
 
 public class RepositoryOpener {
 
@@ -37,17 +37,22 @@ public class RepositoryOpener {
 
     public Git getRepo() {
 
+        File file = new File("C:\\localRepo");
+        if(file.exists()) {
+            delete(file);
+        }
+
         Git tmp=null;
         try{
             tmp = Git.cloneRepository()
                     .setURI(repoUrl)
+                    .setDirectory(new File("C:\\localRepo"))
                     .call();
             this.git=tmp;
             this.repository = git.getRepository();
         }
         catch (JGitInternalException e){
             System.out.println("Already cloned");
-            tmp = this.git;
         }
         catch (GitAPIException e) {
             e.printStackTrace();
@@ -80,22 +85,21 @@ public class RepositoryOpener {
         return result;
 
     }
-    //    public boolean checkIfExistsLocal() {
-//        boolean result;
-//
-////        try {
-////            System.out.println(new FileRepository("C:\\Users\\Ula\\IdeaProjects\\Git-Analyzer\\Sejmometr").getObjectDatabase().exists());
-////            result=false;
-////        } catch (IOException e) {
-////            result = false;
-////        }
-////        System.out.println(result);
-//        if (RepositoryCache.FileKey.isGitRepository(new File("C:\\Users\\Ula\\IdeaProjects\\Git-Analyzer\\Sejmometr"), FS.DETECTED)) {
-//            System.out.println("isntije");
-//            return true;
-//        }
-//        return false;
-//    }
+
+    private void delete(File file){
+        for (File childFile : file.listFiles()) {
+
+            if (childFile.isDirectory()) {
+                delete(childFile);
+            }
+            childFile.delete();
+        }
+
+        if (!file.delete()) {
+            System.out.println("Problem with deleting directory");
+        }
+    }
+
     public void setRepoUrl(String repoUrl) {
         this.repoUrl = repoUrl;
     }
