@@ -27,7 +27,6 @@ public class RepoCommitsAnalyzerModule implements IAnalyzerModule{
         this.dateTimeList = createDemoData();
         //jak dziewczyny dodadza swoj modul to tutaj trzeba bedzie dodac import i to odkomentowac, a to na gorze zakomentowac
 //        this.dateTimeList = fetcher.getCommitsDates();
-        System.out.println(this.dateTimeList);
     }
 
     private List<DateTime> createDemoData(){

@@ -1,4 +1,5 @@
 package app.analysis;
+
 import app.fetch.CommitDetails;
 import app.fetch.Fetcher;
 import org.jfree.chart.ChartFactory;
@@ -9,15 +10,11 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
 public class MonthlyAuthorsCounterAnalyzerModule implements IAnalyzerModule{
-    private int year = 2017;
-    private List<CommitDetails> commitDetailsList;
-    private String names ;
-    private List<String> namesList = new ArrayList<>();
+    private static int year = 2017; //TODO
     private Fetcher fetcher;
 
     @Override
@@ -33,12 +30,15 @@ public class MonthlyAuthorsCounterAnalyzerModule implements IAnalyzerModule{
 
     private int countAuthors(int month, int year){
         fetcher = new Fetcher();
-        for(CommitDetails comDetails: fetcher.getMonthlyRaport(month, year)){
-            names = comDetails.getAuthorName();
-            namesList.add(names);
+        HashSet<String> namesSet = new HashSet<>();
+        List<CommitDetails> commitDetailsList = fetcher.getMonthlyRaport(month, year);
+
+        for(CommitDetails comDetails: commitDetailsList){
+            String name = comDetails.getAuthorName();
+            namesSet.add(name);
         }
 
-        return (new HashSet<>(namesList)).size();
+        return namesSet.size();
     }
 
     private XYDataset createDataset(int year){
