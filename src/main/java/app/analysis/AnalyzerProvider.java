@@ -5,34 +5,35 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-/**
- * Created by Karol on 2017-12-10.
- */
 public class AnalyzerProvider {
     private static List<IAnalyzer> analyzers;
     private static List<IAnalyzerModule> modules;
 
     public static List<IAnalyzerModule> getModules(){
         if(modules == null)
-            modules = getAnalyzers().stream().flatMap(analyzer -> analyzer.getModules().stream()).collect(Collectors.toList());
+            modules = getAnalyzers().stream()
+                    .flatMap(analyzer -> analyzer.getModules().stream())
+                    .collect(Collectors.toList());
 
         return modules;
     }
 
     public static List<String> getModulesNames() {
-        return getModules().stream().map(IAnalyzerModule::getName).collect(Collectors.toList());
+        return getModules().stream()
+                .map(IAnalyzerModule::getName)
+                .collect(Collectors.toList());
     }
 
     public static IAnalyzerModule getModule(String moduleName){
-        return getModules().stream().filter(a -> Objects.equals(a.getName(), moduleName)).findFirst().get();
+        return getModules().stream()
+                .filter(a -> Objects.equals(a.getName(), moduleName))
+                .findFirst()
+                .get();
     }
 
     private static List<IAnalyzer> getAnalyzers() {
         if(analyzers == null)
-            analyzers = Arrays.asList(
-                    new Analyzer1(),
-                    new Analyzer2()
-            );
+            analyzers = Arrays.asList(new Analyzer1(), new Analyzer2());
 
         return analyzers;
     }

@@ -7,9 +7,7 @@ public class Analyzer2 implements IAnalyzer {
     private List<IAnalyzerModule> modules;
 
     public Analyzer2(){
-        modules = Arrays.asList(
-                new MonthlyAuthorsCounterAnalyzerModule()
-        );
+        modules = Arrays.asList(new MonthlyAuthorsCounterAnalyzerModule());
     }
 
     @Override

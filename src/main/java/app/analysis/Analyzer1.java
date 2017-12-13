@@ -7,9 +7,7 @@ public class Analyzer1 implements IAnalyzer {
     private List<IAnalyzerModule> modules;
 
     public Analyzer1(){
-        modules = Arrays.asList(
-                new RepoCommitsAnalyzerModule()
-        );
+        modules = Arrays.asList(new RepoCommitsAnalyzerModule());
     }
 
     @Override

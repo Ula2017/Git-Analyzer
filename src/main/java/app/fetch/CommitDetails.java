@@ -3,7 +3,6 @@ package app.fetch;
 import org.joda.time.DateTime;
 
 public class CommitDetails {
-
     private DateTime commitDate;
     private String authorName;
     private String commitMessage;
@@ -14,15 +13,7 @@ public class CommitDetails {
         this.commitMessage = commitMessage;
     }
 
-    public DateTime getCommitDate() {
-        return commitDate;
-    }
-
-    public String getAuthorName(){
-        return authorName;
-    }
-
-    public String getCommitMessage() {
-        return commitMessage;
-    }
+    public DateTime getCommitDate() { return commitDate; }
+    public String getAuthorName(){ return authorName; }
+    public String getCommitMessage() { return commitMessage; }
 }

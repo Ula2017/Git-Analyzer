@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Fetcher {
-
     private Git git;
     private RepositoryOpener repositoryOpener;
 
@@ -19,44 +18,42 @@ public class Fetcher {
         this.git = repositoryOpener.getGit();
     }
 
-    public List<CommitDetails> getAllCommits(){
+    public Git getGit() {
+        return git;
+    }
+    public RepositoryOpener getRepositoryOpener() {
+        return repositoryOpener;
+    }
 
-        List<CommitDetails> commitDetailsList = new ArrayList<CommitDetails>();
+    public List<CommitDetails> getAllCommits(){
+        List<CommitDetails> commitDetailsList = new ArrayList<>();
         try{
-            Iterable<RevCommit> logs = git.log().call();
-            for(RevCommit rev : logs){
-                commitDetailsList.add(new CommitDetails(new DateTime(rev.getAuthorIdent().getWhen()), rev.getAuthorIdent().getName(), rev.getShortMessage()));
+            for(RevCommit rev : git.log().call()){
+                commitDetailsList.add(new CommitDetails(
+                        new DateTime(rev.getAuthorIdent().getWhen()),
+                        rev.getAuthorIdent().getName(),
+                        rev.getShortMessage()));
             }
         }
         catch (GitAPIException e){
             e.printStackTrace();
         }
+
         return commitDetailsList;
     }
 
     public List<CommitDetails> getCommitsFiltered(DateTime startDate, DateTime endDate){
-
-        List<CommitDetails> commitDetailsList = getAllCommits();
-        return commitDetailsList.stream().filter(d->d.getCommitDate().isAfter(startDate)).filter(d->d.getCommitDate().isBefore(endDate)).collect(Collectors.toList());
+        return getAllCommits().stream()
+                .filter(d->d.getCommitDate().isAfter(startDate))
+                .filter(d->d.getCommitDate().isBefore(endDate))
+                .collect(Collectors.toList());
     }
 
     public List<CommitDetails> getMonthlyRaport(int month, int year){
-        return getCommitsFiltered(new DateTime(year, month, 1, 0, 0),new DateTime(year, month, 31,23,59));
+        return getCommitsFiltered(new DateTime(year, month, 1, 0, 0),new DateTime(year, month, 28,23,59));
     }
-
 
     public List<DateTime> getCommitsDates(){
-        List<CommitDetails> commitDetailsList = getAllCommits();
-        return commitDetailsList.stream().map(d->d.getCommitDate()).collect(Collectors.toList());
-    }
-
-
-
-    public RepositoryOpener getRepositoryOpener() {
-        return repositoryOpener;
-    }
-
-    public Git getGit() {
-        return git;
+        return getAllCommits().stream().map(CommitDetails::getCommitDate).collect(Collectors.toList());
     }
 }
