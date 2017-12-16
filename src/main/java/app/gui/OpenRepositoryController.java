@@ -23,7 +23,7 @@ public class OpenRepositoryController extends IController {
     public OpenRepositoryController(Stage primaryStage, IController mainController){
         this.primaryStage = primaryStage;
         this.scene = createScene();
-        this.analysisMenuController = new AnalysisMenuController(primaryStage, this);
+        this.analysisMenuController = new ModulesMenuController(primaryStage, this);
         this.mainController = mainController;
         this.repositoryOpener = RepositoryOpener.getInstance();
     }

@@ -1,9 +1,19 @@
 package app.analysis;
 
-/**
- * Created by Karol on 2017-12-10.
- */
-public interface IAnalyzerModule {
-    String getName();
-    String generateFile();
+import app.fetch.IDTO;
+import org.joda.time.DateTime;
+
+import java.util.List;
+
+public abstract class IAnalyzerModule {
+    protected DateTime from = DateTime.now().minusYears(1), to = DateTime.now();
+
+    public void setFromDate(DateTime from){
+        this.from = from;
+    }
+
+    public void setToDate(DateTime to){ this.to = to; }
+
+    public abstract String getName();
+    public abstract String generateFile(List<IDTO> data);
 }

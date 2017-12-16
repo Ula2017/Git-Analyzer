@@ -1,6 +1,7 @@
 package app.analysis;
 
 import app.fetch.Fetcher;
+import app.fetch.IDTO;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
@@ -14,7 +15,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RepoCommitsAnalyzerModule implements IAnalyzerModule{
+public class RepoCommitsAnalyzerModule extends IAnalyzerModule{
     private static int numberOfIntervals = 5;
 
     private List<DateTime> dateTimeList;
@@ -39,13 +40,14 @@ public class RepoCommitsAnalyzerModule implements IAnalyzerModule{
         return trialList;
     }
 
+    //ZMIENCIE NAZWE TU I W ModuleControllerze !
     @Override
     public String getName() {
-        return this.getClass().getName();
+        return "Module 2";
     }
 
     @Override
-    public String generateFile() {
+    public String generateFile(List<IDTO> data) {
         String path = createDiagram();
         return "file:"+path;
     }

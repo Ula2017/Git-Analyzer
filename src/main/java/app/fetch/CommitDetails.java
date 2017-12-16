@@ -2,10 +2,10 @@ package app.fetch;
 
 import org.joda.time.DateTime;
 
-public class CommitDetails {
-    private DateTime commitDate;
-    private String authorName;
-    private String commitMessage;
+public class CommitDetails implements IDTO{
+    private final DateTime commitDate;
+    private final String authorName;
+    private final String commitMessage;
 
     public CommitDetails(DateTime commitDate, String authorName, String commitMessage){
         this.commitDate = commitDate;

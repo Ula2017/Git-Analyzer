@@ -1,7 +1,8 @@
 package app.gui;
 
+import app.analysis.Analyzer;
 import app.analysis.IAnalyzerModule;
-import app.analysis.AnalyzerProvider;
+import app.fetch.Fetcher;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -12,17 +13,22 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import org.joda.time.DateTime;
 
-/**
- * Created by Karol on 2017-12-10.
- */
 public class ModuleController extends IController{
     private IController analysisMenuController;
     private String analysisName;
+    private DateTime fromDate;
+    private DateTime toDate;
 
-    public ModuleController(Stage primaryStage, AnalysisMenuController analysisMenuController) {
+    public ModuleController(Stage primaryStage, ModulesMenuController modulesMenuController) {
         this.primaryStage = primaryStage;
-        this.analysisMenuController = analysisMenuController;
+        this.analysisMenuController = modulesMenuController;
+    }
+
+    public void setDates(DateTime from, DateTime to){
+        this.fromDate = from;
+        this.toDate = to;
     }
 
     @Override
@@ -39,6 +45,7 @@ public class ModuleController extends IController{
     @Override
     Scene createScene() {
         GridPane moduleGrid = getAbstractGrid(Color.WHITE);
+        Fetcher fetcher = new Fetcher();
 
         VBox moduleBox = new VBox(50);
         moduleBox.setMinHeight(700);
@@ -49,12 +56,26 @@ public class ModuleController extends IController{
         Text analysisTitle = getText(analysisName, 70);
         moduleBox.getChildren().add(analysisTitle);
 
-        IAnalyzerModule module = AnalyzerProvider.getModule(analysisName);
-        Image image = new Image(module.generateFile());
+        Analyzer analyzer = new Analyzer();
+        IAnalyzerModule module = analyzer.getModule(analysisName);
+
         ImageView imageView = new ImageView();
         imageView.setFitWidth(600);
         moduleBox.getChildren().add(imageView);
-        imageView.setImage(image);
+        Image image;
+
+        switch (analysisName){
+            case "Monthly ammount of commiters":
+                module.setToDate(toDate);
+                module.setFromDate(fromDate);
+                image = new Image(module.generateFile(fetcher.getAllCommits()));
+                imageView.setImage(image);
+                break;
+            case "Module 2":
+                image = new Image(module.generateFile(fetcher.getAllCommits()));
+                imageView.setImage(image);
+                break;
+        }
 
         Button moduleBackButton = getButton("Back", 450, 55, () -> this.analysisMenuController.show());
         moduleBox.getChildren().add(moduleBackButton);
