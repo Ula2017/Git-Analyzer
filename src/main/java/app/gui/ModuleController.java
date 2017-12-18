@@ -3,6 +3,11 @@ package app.gui;
 import app.analysis.Analyzer;
 import app.analysis.IAnalyzerModule;
 import app.fetch.Fetcher;
+import app.fetch.GitDownloader;
+import app.fetch.RepoDownloader;
+import app.fetch.RepositoryModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -45,7 +50,9 @@ public class ModuleController extends IController{
     @Override
     Scene createScene() {
         GridPane moduleGrid = getAbstractGrid(Color.WHITE);
-        Fetcher fetcher = new Fetcher();
+        Injector injector = Guice.createInjector();
+        Fetcher fetcher = injector.getInstance(Fetcher.class);
+        //Fetcher fetcher = new Fetcher(new GitDownloader("mama"));
 
         VBox moduleBox = new VBox(50);
         moduleBox.setMinHeight(700);

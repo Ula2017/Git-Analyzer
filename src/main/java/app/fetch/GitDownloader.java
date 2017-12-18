@@ -1,6 +1,7 @@
 
 package app.fetch;
 
+import com.google.inject.Inject;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.JGitInternalException;
@@ -12,19 +13,16 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
-public class RepositoryOpener {
-    private Repository repository;
+public class GitDownloader implements RepoDownloader {
     private Git git;
     private String repoUrl;
-    private static RepositoryOpener instance;
 
-    private RepositoryOpener(){}
 
-    public static RepositoryOpener getInstance(){
-        if(instance == null) { instance = new RepositoryOpener(); }
-
-        return instance;
+    @Inject
+    public GitDownloader(@RepoUrl String url){
+        this.repoUrl = url;
     }
+
 
     public Git getGit(){
         return git;
@@ -33,7 +31,9 @@ public class RepositoryOpener {
         this.repoUrl = repoUrl;
     }
 
-    public Git getRepo() {
+
+    @Override
+    public Git getRepository() {
         File file = new File("C:\\localRepo");
         if(file.exists())
             delete(file);
@@ -44,7 +44,6 @@ public class RepositoryOpener {
                     .setDirectory(new File("C:\\localRepo"))
                     .call();
 
-            this.repository = this.git.getRepository();
         }
         catch (JGitInternalException e){ System.err.println("Already cloned"); }
         catch (GitAPIException e) { e.printStackTrace(); }
@@ -52,6 +51,7 @@ public class RepositoryOpener {
         return this.git;
     }
 
+    @Override
     public boolean checkIfExistsRemote(){
         boolean result;
         InputStream ins = null;

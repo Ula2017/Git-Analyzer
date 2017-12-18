@@ -1,6 +1,11 @@
 package app.gui;
 
-import app.fetch.RepositoryOpener;
+import app.fetch.CommitDetails;
+import app.fetch.Fetcher;
+import app.fetch.GitDownloader;
+import app.fetch.RepositoryModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -11,6 +16,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import java.util.List;
+
 /**
  * Created by Karol on 2017-12-10.
  */
@@ -18,14 +25,14 @@ import javafx.stage.Stage;
 public class OpenRepositoryController extends IController {
     private IController analysisMenuController;
     private IController mainController;
-    private RepositoryOpener repositoryOpener;
+    private Fetcher f;
 
     public OpenRepositoryController(Stage primaryStage, IController mainController){
         this.primaryStage = primaryStage;
         this.scene = createScene();
         this.analysisMenuController = new ModulesMenuController(primaryStage, this);
         this.mainController = mainController;
-        this.repositoryOpener = RepositoryOpener.getInstance();
+
     }
 
     @Override
@@ -54,16 +61,34 @@ public class OpenRepositoryController extends IController {
         openRepositoryBox.getChildren().add(repoPathTextField);
 
         Button openRepositoryButton = getButton("Open repository", 350, 55, () -> {
-                    repositoryOpener.setRepoUrl(repoPathTextField.getText());
+ //                   gitDownloader.setRepoUrl(repoPathTextField.getText());
+                    Injector injector = Guice.createInjector(new RepositoryModule(repoPathTextField.getText()));
+                    Fetcher f = injector.getInstance(Fetcher.class);
+                    this.f =f;
 
-                    if (repositoryOpener.checkIfExistsRemote()) {
+                    if (f.getGitDownloader().checkIfExistsRemote()) {
                         repoPathTextField.clear();
-                        repositoryOpener.getRepo();
-                        this.analysisMenuController.show();
+                        //f.getGitDownloader().getRepository();
+                        List<CommitDetails> results= (List<CommitDetails>)(List<?>)f.getAllCommits();
+                        for (CommitDetails r : results) {
+                            System.out.println(r.getCommitDate() + " " + r.getAuthorName() + " " + r.getCommitMessage());
+                        }
+                       this.analysisMenuController.show();
                     } else {
-                        repositoryOpener.setRepoUrl(null);
+                        f.getGitDownloader().setRepoUrl(null);
                         repoPathTextField.setStyle("-fx-border-color: red");
                     }
+
+
+
+//                    if (gitDownloader.checkIfExistsRemote()) {
+//                        repoPathTextField.clear();
+//                        gitDownloader.getRepository();
+//                        this.analysisMenuController.show();
+//                    } else {
+//                        gitDownloader.setRepoUrl(null);
+//                        repoPathTextField.setStyle("-fx-border-color: red");
+//                    }
 
                 }
         );
@@ -74,7 +99,7 @@ public class OpenRepositoryController extends IController {
         return new Scene(openRepositoryGrid, width, heigth);
     }
 
-    public RepositoryOpener getRepositoryOpener() {
-        return repositoryOpener;
-    }
+//    public GitDownloader getGitDownloader() {
+//        return gitDownloader;
+//    }
 }

@@ -1,5 +1,6 @@
 package app.fetch;
 
+import com.google.inject.Inject;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -10,11 +11,20 @@ import java.util.List;
 
 public class Fetcher {
     private Git git;
-    private RepositoryOpener repositoryOpener;
+    private RepoDownloader gitDownloader;
 
-    public Fetcher(){
-        this.repositoryOpener=RepositoryOpener.getInstance();
-        this.git = repositoryOpener.getGit();
+    @Inject
+    public Fetcher( RepoDownloader repoOpener){
+        this.gitDownloader =repoOpener;
+        this.git = repoOpener.getRepository();
+    }
+
+//    public Fetcher(){
+//
+//    }
+
+    public RepoDownloader getGitDownloader(){
+        return gitDownloader;
     }
 
     public List<IDTO> getAllCommits(){
