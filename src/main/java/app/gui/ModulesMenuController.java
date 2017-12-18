@@ -1,6 +1,7 @@
 package app.gui;
 
 import app.analysis.Analyzer;
+import app.fetch.Fetcher;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
@@ -30,11 +31,11 @@ public class ModulesMenuController extends IController {
     private Button moduleGenerateButton;
     private Button moduleChangeRepositoryButton;
 
-    public ModulesMenuController(Stage primaryStage, IController openRepositoryController){
+    public ModulesMenuController(Stage primaryStage, IController openRepositoryController, Fetcher f){
         this.primaryStage = primaryStage;
         this.scene = createScene();
         this.openRepositoryController = openRepositoryController;
-        this.moduleController = new ModuleController(primaryStage, this);
+        this.moduleController = new ModuleController(primaryStage, this, f);
     }
 
     @Override

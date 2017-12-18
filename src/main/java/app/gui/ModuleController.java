@@ -25,10 +25,12 @@ public class ModuleController extends IController{
     private String analysisName;
     private DateTime fromDate;
     private DateTime toDate;
+    private Fetcher f;
 
-    public ModuleController(Stage primaryStage, ModulesMenuController modulesMenuController) {
+    public ModuleController(Stage primaryStage, ModulesMenuController modulesMenuController, Fetcher f) {
         this.primaryStage = primaryStage;
         this.analysisMenuController = modulesMenuController;
+        this.f=f;
     }
 
     public void setDates(DateTime from, DateTime to){
@@ -50,9 +52,7 @@ public class ModuleController extends IController{
     @Override
     Scene createScene() {
         GridPane moduleGrid = getAbstractGrid(Color.WHITE);
-        Injector injector = Guice.createInjector();
-        Fetcher fetcher = injector.getInstance(Fetcher.class);
-        //Fetcher fetcher = new Fetcher(new GitDownloader("mama"));
+        //Fetcher fetcher = new Fetcher());
 
         VBox moduleBox = new VBox(50);
         moduleBox.setMinHeight(700);
@@ -75,11 +75,11 @@ public class ModuleController extends IController{
             case "Monthly ammount of commiters":
                 module.setToDate(toDate);
                 module.setFromDate(fromDate);
-                image = new Image(module.generateFile(fetcher.getAllCommits()));
+                image = new Image(module.generateFile(f.getAllCommits()));
                 imageView.setImage(image);
                 break;
             case "Module 2":
-                image = new Image(module.generateFile(fetcher.getAllCommits()));
+                image = new Image(module.generateFile(f.getAllCommits()));
                 imageView.setImage(image);
                 break;
         }

@@ -19,10 +19,6 @@ public class Fetcher {
         this.git = repoOpener.getRepository();
     }
 
-//    public Fetcher(){
-//
-//    }
-
     public RepoDownloader getGitDownloader(){
         return gitDownloader;
     }

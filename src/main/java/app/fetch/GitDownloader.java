@@ -18,7 +18,8 @@ public class GitDownloader implements RepoDownloader {
     private String repoUrl;
 
 
-    @Inject
+ //   @Inject @RepoUrl
+ @Inject
     public GitDownloader(@RepoUrl String url){
         this.repoUrl = url;
     }
@@ -39,6 +40,7 @@ public class GitDownloader implements RepoDownloader {
             delete(file);
 
         try{
+            System.out.println(this.repoUrl);
             this.git=Git.cloneRepository()
                     .setURI(repoUrl)
                     .setDirectory(new File("C:\\localRepo"))

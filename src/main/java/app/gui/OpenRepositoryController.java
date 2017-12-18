@@ -25,12 +25,12 @@ import java.util.List;
 public class OpenRepositoryController extends IController {
     private IController analysisMenuController;
     private IController mainController;
-    private Fetcher f;
+
 
     public OpenRepositoryController(Stage primaryStage, IController mainController){
         this.primaryStage = primaryStage;
         this.scene = createScene();
-        this.analysisMenuController = new ModulesMenuController(primaryStage, this);
+        //this.analysisMenuController = new ModulesMenuController(primaryStage, this, this.f);
         this.mainController = mainController;
 
     }
@@ -61,34 +61,23 @@ public class OpenRepositoryController extends IController {
         openRepositoryBox.getChildren().add(repoPathTextField);
 
         Button openRepositoryButton = getButton("Open repository", 350, 55, () -> {
- //                   gitDownloader.setRepoUrl(repoPathTextField.getText());
+
                     Injector injector = Guice.createInjector(new RepositoryModule(repoPathTextField.getText()));
                     Fetcher f = injector.getInstance(Fetcher.class);
-                    this.f =f;
 
                     if (f.getGitDownloader().checkIfExistsRemote()) {
                         repoPathTextField.clear();
-                        //f.getGitDownloader().getRepository();
                         List<CommitDetails> results= (List<CommitDetails>)(List<?>)f.getAllCommits();
                         for (CommitDetails r : results) {
                             System.out.println(r.getCommitDate() + " " + r.getAuthorName() + " " + r.getCommitMessage());
                         }
+                        this.analysisMenuController = new ModulesMenuController(primaryStage, this,f);
                        this.analysisMenuController.show();
                     } else {
                         f.getGitDownloader().setRepoUrl(null);
                         repoPathTextField.setStyle("-fx-border-color: red");
                     }
 
-
-
-//                    if (gitDownloader.checkIfExistsRemote()) {
-//                        repoPathTextField.clear();
-//                        gitDownloader.getRepository();
-//                        this.analysisMenuController.show();
-//                    } else {
-//                        gitDownloader.setRepoUrl(null);
-//                        repoPathTextField.setStyle("-fx-border-color: red");
-//                    }
 
                 }
         );
@@ -99,7 +88,4 @@ public class OpenRepositoryController extends IController {
         return new Scene(openRepositoryGrid, width, heigth);
     }
 
-//    public GitDownloader getGitDownloader() {
-//        return gitDownloader;
-//    }
 }
