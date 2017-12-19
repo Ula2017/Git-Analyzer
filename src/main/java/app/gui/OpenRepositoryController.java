@@ -71,7 +71,7 @@ public class OpenRepositoryController extends IController {
                         for (CommitDetails r : results) {
                             System.out.println(r.getCommitDate() + " " + r.getAuthorName() + " " + r.getCommitMessage());
                         }
-                        this.analysisMenuController = new ModulesMenuController(primaryStage, this,f);
+                        this.analysisMenuController = new ModulesMenuController(primaryStage, this,injector);
                        this.analysisMenuController.show();
                     } else {
                         f.getGitDownloader().setRepoUrl(null);

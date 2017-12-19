@@ -2,10 +2,7 @@ package app.gui;
 
 import app.analysis.Analyzer;
 import app.analysis.IAnalyzerModule;
-import app.fetch.Fetcher;
-import app.fetch.GitDownloader;
-import app.fetch.RepoDownloader;
-import app.fetch.RepositoryModule;
+import app.fetch.*;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import javafx.geometry.Pos;
@@ -20,14 +17,16 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import org.joda.time.DateTime;
 
+import java.util.List;
+
 public class ModuleController extends IController{
     private IController analysisMenuController;
     private String analysisName;
     private DateTime fromDate;
     private DateTime toDate;
-    private Fetcher f;
+    private Injector f;
 
-    public ModuleController(Stage primaryStage, ModulesMenuController modulesMenuController, Fetcher f) {
+    public ModuleController(Stage primaryStage, ModulesMenuController modulesMenuController, Injector f) {
         this.primaryStage = primaryStage;
         this.analysisMenuController = modulesMenuController;
         this.f=f;
@@ -52,7 +51,14 @@ public class ModuleController extends IController{
     @Override
     Scene createScene() {
         GridPane moduleGrid = getAbstractGrid(Color.WHITE);
-        //Fetcher fetcher = new Fetcher());
+
+        Fetcher fetcher = f.getInstance(Fetcher.class);
+        List<CommitDetails> results= (List<CommitDetails>)(List<?>)fetcher.getAllCommits();
+        for (CommitDetails r : results) {
+            System.out.println(r.getCommitDate() + " " + r.getAuthorName() + " " + r.getCommitMessage());
+        }
+
+
 
         VBox moduleBox = new VBox(50);
         moduleBox.setMinHeight(700);
@@ -75,11 +81,11 @@ public class ModuleController extends IController{
             case "Monthly ammount of commiters":
                 module.setToDate(toDate);
                 module.setFromDate(fromDate);
-                image = new Image(module.generateFile(f.getAllCommits()));
+                image = new Image(module.generateFile(fetcher.getAllCommits()));
                 imageView.setImage(image);
                 break;
             case "Module 2":
-                image = new Image(module.generateFile(f.getAllCommits()));
+                image = new Image(module.generateFile(fetcher.getAllCommits()));
                 imageView.setImage(image);
                 break;
         }
