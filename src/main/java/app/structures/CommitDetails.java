@@ -1,8 +1,8 @@
-package app.fetch;
+package app.structures;
 
 import org.joda.time.DateTime;
 
-public class CommitDetails implements IDTO{
+public class CommitDetails {
     private final DateTime commitDate;
     private final String authorName;
     private final String commitMessage;

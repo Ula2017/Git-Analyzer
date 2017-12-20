@@ -1,9 +1,10 @@
 package app.gui;
 
 import app.analysis.Analyzer;
-import app.analysis.IAnalyzerModule;
-import app.fetch.*;
-import com.google.inject.Guice;
+import app.analysis.AbstractAnalyzerModule;
+import app.structures.CommitDetails;
+import app.fetch.Fetcher;
+import app.structures.ModuleNames;
 import com.google.inject.Injector;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -21,7 +22,7 @@ import java.util.List;
 
 public class ModuleController extends IController{
     private IController analysisMenuController;
-    private String analysisName;
+    private ModuleNames moduleName;
     private DateTime fromDate;
     private DateTime toDate;
     private Injector f;
@@ -43,8 +44,8 @@ public class ModuleController extends IController{
     }
 
     @Override
-    public void show(Object data) {
-        analysisName = data.toString();
+    public void show(Object moduleName) {
+        this.moduleName = (ModuleNames) moduleName;
         show();
     }
 
@@ -58,36 +59,39 @@ public class ModuleController extends IController{
             System.out.println(r.getCommitDate() + " " + r.getAuthorName() + " " + r.getCommitMessage());
         }
 
-
-
         VBox moduleBox = new VBox(50);
         moduleBox.setMinHeight(700);
         moduleGrid.add(moduleBox, 0,0);
         moduleBox.setAlignment(Pos.CENTER);
         moduleBox.setStyle("-fx-font: 40 Tahoma");
 
-        Text analysisTitle = getText(analysisName, 70);
+        Text analysisTitle = getText(moduleName.toString(), 70);
         moduleBox.getChildren().add(analysisTitle);
 
         Analyzer analyzer = new Analyzer();
-        IAnalyzerModule module = analyzer.getModule(analysisName);
+        AbstractAnalyzerModule module = analyzer.getModule(moduleName);
 
         ImageView imageView = new ImageView();
         imageView.setFitWidth(600);
         moduleBox.getChildren().add(imageView);
         Image image;
 
-        switch (analysisName){
-            case "Monthly ammount of commiters":
-                module.setToDate(toDate);
-                module.setFromDate(fromDate);
-                image = new Image(module.generateFile(fetcher.getAllCommits()));
-                imageView.setImage(image);
-                break;
-            case "Module 2":
-                image = new Image(module.generateFile(fetcher.getAllCommits()));
-                imageView.setImage(image);
-                break;
+        try {
+            switch (moduleName) {
+                case MODULE1:
+                    module.setToDate(toDate);
+                    module.setFromDate(fromDate);
+                    image = new Image(module.generateFile(fetcher.getAllCommits()));
+                    imageView.setImage(image);
+                    break;
+                case MODULE2:
+                    image = new Image(module.generateFile(fetcher.getAllCommits()));
+                    imageView.setImage(image);
+                    break;
+            }
+        }
+        catch(Exception e){
+            System.err.println(e.getStackTrace());
         }
 
         Button moduleBackButton = getButton("Back", 450, 55, () -> this.analysisMenuController.show());

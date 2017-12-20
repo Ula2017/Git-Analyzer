@@ -1,7 +1,8 @@
 package app.analysis;
 
 import app.fetch.Fetcher;
-import app.fetch.IDTO;
+import app.structures.CommitDetails;
+import app.structures.ModuleNames;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
@@ -15,7 +16,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RepoCommitsAnalyzerModule extends IAnalyzerModule{
+public class RepoCommitsAnalyzerModule extends AbstractAnalyzerModule {
     private static int numberOfIntervals = 5;
 
     private List<DateTime> dateTimeList;
@@ -40,16 +41,14 @@ public class RepoCommitsAnalyzerModule extends IAnalyzerModule{
         return trialList;
     }
 
-    //ZMIENCIE NAZWE TU I W ModuleControllerze !
     @Override
-    public String getName() {
-        return "Module 2";
+    public ModuleNames getModuleName() {
+        return ModuleNames.MODULE2;
     }
 
     @Override
-    public String generateFile(List<IDTO> data) {
-        String path = createDiagram();
-        return "file:"+path;
+    public String generateFile(List<CommitDetails> data) throws Exception {
+        return "file:"+createDiagram();
     }
 
     private XYDataset createDataset(){
@@ -89,8 +88,9 @@ public class RepoCommitsAnalyzerModule extends IAnalyzerModule{
                 "Number of commits",
                 dataset);
 
+        File outputFile = new File(path);
         try {
-            ChartUtilities.saveChartAsJPEG(new File(path), chart, width, height);
+            ChartUtilities.saveChartAsJPEG(outputFile, chart, width, height);
         }
         catch (Exception e) {
             System.err.println("Problem occurred creating chart.");

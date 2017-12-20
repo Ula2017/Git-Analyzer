@@ -1,11 +1,12 @@
 package app.analysis;
 
-import app.fetch.IDTO;
+import app.structures.CommitDetails;
+import app.structures.ModuleNames;
 import org.joda.time.DateTime;
 
 import java.util.List;
 
-public abstract class IAnalyzerModule {
+public abstract class AbstractAnalyzerModule {
     protected DateTime from = DateTime.now().minusYears(1), to = DateTime.now();
 
     public void setFromDate(DateTime from){
@@ -14,6 +15,6 @@ public abstract class IAnalyzerModule {
 
     public void setToDate(DateTime to){ this.to = to; }
 
-    public abstract String getName();
-    public abstract String generateFile(List<IDTO> data);
+    public abstract ModuleNames getModuleName();
+    public abstract String generateFile(List<CommitDetails> commitDetails) throws Exception;
 }

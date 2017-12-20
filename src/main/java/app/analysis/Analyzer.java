@@ -1,5 +1,7 @@
 package app.analysis;
 
+import app.structures.ModuleNames;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -8,21 +10,21 @@ import java.util.stream.Collectors;
 public class Analyzer {
     public Analyzer(){ }
 
-    public List<IAnalyzerModule> getModules(){
+    public List<AbstractAnalyzerModule> getModules(){
         return Arrays.asList(
             new RepoCommitsAnalyzerModule(),
             new MonthlyAuthorsCounterAnalyzerModule());
     }
 
-    public List<String> getModulesNames() {
+    public List<ModuleNames> getModulesNames() {
         return getModules().stream()
-                .map(IAnalyzerModule::getName)
+                .map(AbstractAnalyzerModule::getModuleName)
                 .collect(Collectors.toList());
     }
 
-    public IAnalyzerModule getModule(String moduleName){
+    public AbstractAnalyzerModule getModule(ModuleNames moduleName){
         return getModules().stream()
-                .filter(a -> Objects.equals(a.getName(), moduleName))
+                .filter(a -> Objects.equals(a.getModuleName(), moduleName))
                 .findFirst()
                 .get();
     }

@@ -1,7 +1,7 @@
 package app.analysis;
 
-import app.fetch.CommitDetails;
-import app.fetch.IDTO;
+import app.structures.CommitDetails;
+import app.structures.ModuleNames;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
@@ -16,23 +16,22 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class MonthlyAuthorsCounterAnalyzerModule extends IAnalyzerModule{
+public class MonthlyAuthorsCounterAnalyzerModule extends AbstractAnalyzerModule {
     private List<CommitDetails> commits;
 
     @Override
-    public String getName() {
-        return "Monthly ammount of commiters";
+    public ModuleNames getModuleName() {
+        return ModuleNames.MODULE1;
     }
 
     @Override
-    public String generateFile(List<IDTO> data) {
-        commits = (List<CommitDetails>)(List<?>) data;
-        String path = createChart();
-        return "file:"+path;
+    public String generateFile(List<CommitDetails> commitDetails) throws Exception {
+        commits = commitDetails;
+        return "file:"+createFileWithChart();
     }
 
-    private String createChart() {
-        String path = "images/authorsMonthly.jpg";
+    private String createFileWithChart() throws Exception {
+        String outputPath = ModuleNames.getPathForOutput(ModuleNames.MODULE1);
         int height = 480;
         int width = 640;
 
@@ -46,14 +45,15 @@ public class MonthlyAuthorsCounterAnalyzerModule extends IAnalyzerModule{
                 "Authors",
                 dataset);
         chart.getXYPlot().setDomainAxis(sa);
+        File outputFile = new File(outputPath);
         try {
-            ChartUtilities.saveChartAsJPEG(new File(path), chart, width, height);
+            ChartUtilities.saveChartAsJPEG(outputFile, chart, width, height);
         }
         catch (Exception e) {
-            System.err.println("Problem occurred creating chart.");
+            throw new Exception("Problem occurred creating chart.");
         }
 
-        return path;
+        return outputPath;
     }
 
     private XYDataset createDataset(List<String> symbolAxis){

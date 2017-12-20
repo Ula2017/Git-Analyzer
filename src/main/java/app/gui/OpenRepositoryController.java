@@ -1,8 +1,7 @@
 package app.gui;
 
-import app.fetch.CommitDetails;
+import app.structures.CommitDetails;
 import app.fetch.Fetcher;
-import app.fetch.GitDownloader;
 import app.fetch.RepositoryModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;

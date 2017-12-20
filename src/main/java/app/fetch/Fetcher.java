@@ -1,5 +1,6 @@
 package app.fetch;
 
+import app.structures.CommitDetails;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.eclipse.jgit.api.Git;
@@ -25,8 +26,8 @@ public class Fetcher {
         return gitDownloader;
     }
 
-    public List<IDTO> getAllCommits(){
-        List<IDTO> commitDetailsList = new ArrayList<>();
+    public List<CommitDetails> getAllCommits(){
+        List<CommitDetails> commitDetailsList = new ArrayList<>();
         try{
             for(RevCommit rev : git.log().call()){
                 commitDetailsList.add(new CommitDetails(
