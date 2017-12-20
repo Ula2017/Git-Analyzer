@@ -73,7 +73,7 @@ public class OpenRepositoryController extends IController {
                         this.analysisMenuController = new ModulesMenuController(primaryStage, this,injector);
                        this.analysisMenuController.show();
                     } else {
-                        f.getGitDownloader().setRepoUrl(null);
+                        //f.getGitDownloader().setRepoUrl(null);
                         repoPathTextField.setStyle("-fx-border-color: red");
                     }
 

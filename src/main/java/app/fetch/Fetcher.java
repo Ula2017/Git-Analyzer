@@ -15,31 +15,42 @@ import java.util.List;
 public class Fetcher {
     private Git git;
     private RepoDownloader gitDownloader;
+    private List<CommitDetails> commitDetailsList;
 
     @Inject
-    public Fetcher( RepoDownloader repoOpener){
-        this.gitDownloader =repoOpener;
+    public Fetcher(RepoDownloader repoOpener) {
+        this.gitDownloader = repoOpener;
         this.git = repoOpener.getRepository();
+        this.commitDetailsList = new ArrayList<>();
     }
 
-    public RepoDownloader getGitDownloader(){
+    public RepoDownloader getGitDownloader() {
         return gitDownloader;
     }
 
-    public List<CommitDetails> getAllCommits(){
-        List<CommitDetails> commitDetailsList = new ArrayList<>();
-        try{
-            for(RevCommit rev : git.log().call()){
-                commitDetailsList.add(new CommitDetails(
+    public List<CommitDetails> getAllCommits() {
+        if(commitDetailsList.isEmpty()){
+            this.commitDetailsList = generateCommitDetailList();
+        }
+        return this.commitDetailsList;
+    }
+
+    private List<CommitDetails> generateCommitDetailList() {
+
+        try {
+            for (RevCommit rev : git.log().call()) {
+                this.commitDetailsList.add(new CommitDetails(
                         new DateTime(rev.getAuthorIdent().getWhen()),
                         rev.getAuthorIdent().getName(),
                         rev.getShortMessage()));
             }
-        }
-        catch (GitAPIException e){
+        } catch (GitAPIException e) {
             e.printStackTrace();
         }
 
         return commitDetailsList;
     }
+
 }
+
+
