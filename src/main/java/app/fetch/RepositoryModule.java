@@ -1,14 +1,7 @@
 package app.fetch;
 
-import app.gui.ModuleController;
 import com.google.inject.AbstractModule;
 import com.google.inject.BindingAnnotation;
-import com.google.inject.TypeLiteral;
-import com.google.inject.binder.ScopedBindingBuilder;
-import com.google.inject.spi.TypeEncounter;
-import com.google.inject.spi.TypeListener;
-
-import javax.inject.Singleton;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -32,6 +25,7 @@ public class RepositoryModule extends AbstractModule {
 
         bindConstant().annotatedWith(RepoUrl.class).to(url);
         bind(RepoDownloader.class).to(GitDownloader.class);
+
 
     }
 }

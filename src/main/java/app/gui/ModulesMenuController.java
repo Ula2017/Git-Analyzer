@@ -32,6 +32,9 @@ public class ModulesMenuController extends IController {
     private Button moduleGenerateButton;
     private Button moduleChangeRepositoryButton;
 
+
+
+
     public ModulesMenuController(Stage primaryStage, IController openRepositoryController, Injector f){
         this.primaryStage = primaryStage;
         this.scene = createScene();
