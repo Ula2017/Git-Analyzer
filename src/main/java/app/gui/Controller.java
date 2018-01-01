@@ -30,7 +30,6 @@ public class Controller {
     private final Stage primaryStage;
     private final int screenWidth;
     private final int screenHeight;
-    //private final Fetcher fetcher;
 
     public Controller(final Stage primaryStage){
         this.screenWidth = Screen.getMainScreen().getWidth();
@@ -42,7 +41,6 @@ public class Controller {
         this.contactScene = createContactScene();
         this.exitPopup = createExitPopUp();
         this.analysisMenuScene = createAnalysisMenuScene();
-        //this.fetcher = new Fetcher();
     }
 
     public void start(){

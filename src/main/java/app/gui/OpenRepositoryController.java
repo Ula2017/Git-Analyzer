@@ -3,6 +3,7 @@ package app.gui;
 import app.structures.CommitDetails;
 import app.fetch.Fetcher;
 import app.fetch.RepositoryModule;
+import app.structures.FileDiffs;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import javafx.geometry.Pos;
@@ -14,7 +15,9 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import org.joda.time.DateTime;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -69,6 +72,11 @@ public class OpenRepositoryController extends IController {
                         List<CommitDetails> results= (List<CommitDetails>)(List<?>)f.getAllCommits();
                         for (CommitDetails r : results) {
                             System.out.println(r.getCommitDate() + " " + r.getAuthorName() + " " + r.getCommitMessage());
+                        }
+                        List<List<FileDiffs>> resultsDiffList= f.getDiffsFromTimeRange(new DateTime(2017, 1, 1,12, 0, 0, 0), new DateTime(2017, 7 , 20, 12, 0, 0, 0));
+                        for (List<FileDiffs> resultList:resultsDiffList){
+                            for (FileDiffs fileDiffs : resultList){
+                                System.out.println("File named: " + fileDiffs.getFilePath() + " has " + fileDiffs.getInsertions() + " insteritions " + fileDiffs.getDeletions() + " deletions");}
                         }
                         this.analysisMenuController = new ModulesMenuController(primaryStage, this,injector);
                        this.analysisMenuController.show();
