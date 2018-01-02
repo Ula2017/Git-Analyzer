@@ -15,7 +15,6 @@ import java.net.URLConnection;
 public class GitDownloader implements RepoDownloader {
     private String repoUrl;
 
-
     @Inject
     public GitDownloader(@RepoUrl String url){
         this.repoUrl = url;
