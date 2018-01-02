@@ -110,6 +110,12 @@ public class ModulesMenuController extends IController {
                 children.add(moduleGenerateButton);
                 children.add(moduleChangeRepositoryButton);
                 break;
+            case MODULE3:
+                children.add(fromDatePicker);
+                children.add(toDatePicker);
+                children.add(moduleGenerateButton);
+                children.add(moduleChangeRepositoryButton);
+                break;
         }
     }
 }

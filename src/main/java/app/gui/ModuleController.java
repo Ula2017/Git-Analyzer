@@ -85,6 +85,12 @@ public class ModuleController extends IController{
                     image = new Image(module.generateFile(results));
                     imageView.setImage(image);
                     break;
+                case MODULE3:
+                    module.setToDate(toDate);
+                    module.setFromDate(fromDate);
+                    image = new Image(module.generateFile(results));
+                    imageView.setImage(image);
+                    break;
             }
         }
         catch(Exception e){
