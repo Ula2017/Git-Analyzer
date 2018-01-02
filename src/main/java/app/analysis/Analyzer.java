@@ -13,7 +13,8 @@ public class Analyzer {
     public List<AbstractAnalyzerModule> getModules(){
         return Arrays.asList(
             new RepoCommitsAnalyzerModule(),
-            new MonthlyAuthorsCounterAnalyzerModule());
+            new MonthlyAuthorsCounterAnalyzerModule(),
+            new CodeCounterAnalyzerModule());        
     }
 
     public List<ModuleNames> getModulesNames() {
