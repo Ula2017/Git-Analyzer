@@ -46,6 +46,7 @@ public class MonthlyAuthorsCounterAnalyzerModule extends AbstractAnalyzerModule 
                 dataset);
         chart.getXYPlot().setDomainAxis(sa);
         File outputFile = new File(outputPath);
+        outputFile.createNewFile();
         try {
             ChartUtilities.saveChartAsJPEG(outputFile, chart, width, height);
         }

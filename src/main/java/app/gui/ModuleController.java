@@ -54,10 +54,7 @@ public class ModuleController extends IController{
         GridPane moduleGrid = getAbstractGrid(Color.WHITE);
 
         Fetcher fetcher = f.getInstance(Fetcher.class);
-        List<CommitDetails> results= (List<CommitDetails>)(List<?>)fetcher.getAllCommits();
-        for (CommitDetails r : results) {
-            System.out.println(r.getCommitDate() + " " + r.getAuthorName() + " " + r.getCommitMessage());
-        }
+        List<CommitDetails> results = fetcher.getAllCommits();
 
         VBox moduleBox = new VBox(50);
         moduleBox.setMinHeight(700);
@@ -81,11 +78,11 @@ public class ModuleController extends IController{
                 case MODULE1:
                     module.setToDate(toDate);
                     module.setFromDate(fromDate);
-                    image = new Image(module.generateFile(fetcher.getAllCommits()));
+                    image = new Image(module.generateFile(results));
                     imageView.setImage(image);
                     break;
                 case MODULE2:
-                    image = new Image(module.generateFile(fetcher.getAllCommits()));
+                    image = new Image(module.generateFile(results));
                     imageView.setImage(image);
                     break;
             }
