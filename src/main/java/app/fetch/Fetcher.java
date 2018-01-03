@@ -4,30 +4,23 @@ import app.structures.CommitDetails;
 import app.structures.FileDiffs;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.sun.org.apache.regexp.internal.RE;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.diff.*;
-import org.eclipse.jgit.lib.Config;
+import org.eclipse.jgit.diff.DiffEntry;
+import org.eclipse.jgit.diff.DiffFormatter;
+import org.eclipse.jgit.diff.EditList;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.patch.FileHeader;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
-import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
-import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.joda.time.DateTime;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 @Singleton
@@ -55,7 +48,6 @@ public class Fetcher {
     }
 
     private List<CommitDetails> generateCommitDetailList() {
-
         try {
             for (RevCommit rev : git.log().call()) {
                 this.commitDetailsList.add(new CommitDetails(
@@ -77,14 +69,21 @@ public class Fetcher {
         return revCommits;
     }
 
-    public List<List<FileDiffs>> getDiffsFromTimeRange(DateTime startDate, DateTime endDate) {
-
+    public List<List<FileDiffs>> getDiffsFromTimeRange(String committerName, DateTime startDate, DateTime endDate) {
         List<List<FileDiffs>> results = new ArrayList<>();
         try {
+            List<RevCommit> rc = getRevCommits();
+            rc.stream().forEach(x -> System.out.println(x.getCommitterIdent().getName()));
+            System.out.println(committerName);
+
             List<RevCommit> filteredCommits = getRevCommits()
                     .stream()
+//                    .filter(d -> Objects.equals(d.getCommitterIdent().getName(), committerName)
+//                            && new DateTime(d.getCommitterIdent().getWhen()).isAfter(startDate)
+//                            && new DateTime(d.getCommitterIdent().getWhen()).isBefore(endDate))
                     .filter(d -> new DateTime(d.getAuthorIdent().getWhen()).isAfter(startDate) && new DateTime(d.getAuthorIdent().getWhen()).isBefore(endDate))
                     .collect(Collectors.toList());
+
 
             for (RevCommit newCommit : filteredCommits) {
                 if (newCommit.getParentCount() != 0) {
@@ -92,11 +91,10 @@ public class Fetcher {
                     results.add(getDiff(oldCommit, newCommit));
                 }
             }
-        } catch (GitAPIException e) {
-            e.printStackTrace();
-        }catch (IOException e){
+        } catch (GitAPIException | IOException e) {
             e.printStackTrace();
         }
+
         return results;
     }
 
@@ -110,8 +108,8 @@ public class Fetcher {
         List<FileDiffs> results = new ArrayList<>();
 
         for (DiffEntry diffEntry : diffEntries) {
-            int deletions = 0;
-            int insertions = 0;
+            int deletions;
+            int insertions;
             DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE);
             diffFormatter.setRepository(git.getRepository());
             diffFormatter.setContext(0);
@@ -120,7 +118,11 @@ public class Fetcher {
             deletions = edits.stream().mapToInt(e -> e.getLengthA()).sum();
             insertions = edits.stream().mapToInt(e -> e.getLengthB()).sum();
 
-            results.add(new FileDiffs(diffEntry.getNewPath(), newCommit.getShortMessage(), insertions, deletions));
+            results.add(new FileDiffs(diffEntry.getNewPath(),
+                    newCommit.getShortMessage(),
+                    newCommit.getCommitterIdent().getName(),
+                    insertions,
+                    deletions));
         }
         return results;
 

@@ -15,6 +15,10 @@ public enum ModuleNames {
         public String toString(){
             return "Repository commits";
         }
+    },
+    MODULE3 {
+        @Override
+        public String toString() { return "Percentage of programming languages"; }
     };
 
     public static String getPathForOutput(ModuleNames moduleName){

@@ -1,8 +1,6 @@
 package app.gui;
 
-import app.analysis.Analyzer;
-import app.analysis.AbstractAnalyzerModule;
-import app.structures.CommitDetails;
+import app.analysis.*;
 import app.fetch.Fetcher;
 import app.structures.ModuleNames;
 import com.google.inject.Injector;
@@ -18,11 +16,10 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import org.joda.time.DateTime;
 
-import java.util.List;
-
 public class ModuleController extends IController{
     private IController analysisMenuController;
     private ModuleNames moduleName;
+    private String committerName;
     private DateTime fromDate;
     private DateTime toDate;
     private Injector f;
@@ -36,6 +33,10 @@ public class ModuleController extends IController{
     public void setDates(DateTime from, DateTime to){
         this.fromDate = from;
         this.toDate = to;
+    }
+
+    public void setCommitterName(String committerName){
+        this.committerName = committerName;
     }
 
     @Override
@@ -52,9 +53,7 @@ public class ModuleController extends IController{
     @Override
     Scene createScene() {
         GridPane moduleGrid = getAbstractGrid(Color.WHITE);
-
         Fetcher fetcher = f.getInstance(Fetcher.class);
-        List<CommitDetails> results = fetcher.getAllCommits();
 
         VBox moduleBox = new VBox(50);
         moduleBox.setMinHeight(700);
@@ -76,25 +75,24 @@ public class ModuleController extends IController{
         try {
             switch (moduleName) {
                 case MODULE1:
-                    module.setToDate(toDate);
-                    module.setFromDate(fromDate);
-                    image = new Image(module.generateFile(results));
+                    MonthlyAuthorsCounter module1 = (MonthlyAuthorsCounter) module;
+                    image = new Image(module1.generateFile(fetcher.getAllCommits(), fromDate, toDate));
                     imageView.setImage(image);
                     break;
                 case MODULE2:
-                    image = new Image(module.generateFile(results));
+                    RepoCommits module2 = (RepoCommits) module;
+                    image = new Image(module2.generateFile(fetcher.getAllCommits()));
                     imageView.setImage(image);
                     break;
                 case MODULE3:
-                    module.setToDate(toDate);
-                    module.setFromDate(fromDate);
-                    image = new Image(module.generateFile(results));
+                    ProgrammingLanguagesPercentageAnalyzer module3 = (ProgrammingLanguagesPercentageAnalyzer) module;
+                    image = new Image(module3.generateFile(fetcher.getDiffsFromTimeRange(committerName, fromDate, toDate)));
                     imageView.setImage(image);
                     break;
             }
         }
         catch(Exception e){
-            System.err.println(e.getStackTrace());
+            System.err.println(e.toString());
         }
 
         Button moduleBackButton = getButton("Back", 450, 55, () -> this.analysisMenuController.show());

@@ -11,6 +11,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -31,6 +32,8 @@ public class ModulesMenuController extends IController {
     private ModuleNames moduleName;
     private DatePicker fromDatePicker;
     private DatePicker toDatePicker;
+    private TextField authorTextField;
+
     private Button moduleGenerateButton;
     private Button moduleChangeRepositoryButton;
 
@@ -50,7 +53,7 @@ public class ModulesMenuController extends IController {
     Scene createScene() {
         GridPane moduleMenuGrid = getAbstractGrid(Color.WHITE);
 
-        VBox moduleMenuBox = new VBox(120);
+        VBox moduleMenuBox = new VBox(60);
         moduleMenuBox.setMinHeight(700);
         moduleMenuGrid.add(moduleMenuBox, 0,0);
         moduleMenuBox.setAlignment(Pos.CENTER);
@@ -72,10 +75,11 @@ public class ModulesMenuController extends IController {
         comboBox.setVisibleRowCount(5);
         toDatePicker = new DatePicker(LocalDate.now());
         fromDatePicker = new DatePicker(LocalDate.now());
+        authorTextField = new TextField();
+        authorTextField.setPrefHeight(40);
         fromDatePicker.setOnAction(x -> {
             LocalDate date = fromDatePicker.getValue();
             fromDatePicker.setValue(LocalDate.of(date.getYear(), date.getMonth(), 1));
-            System.out.println(fromDatePicker.getValue());
         });
         toDatePicker.setOnAction(t -> {
             LocalDate date = toDatePicker.getValue();
@@ -86,6 +90,7 @@ public class ModulesMenuController extends IController {
             LocalDate toDate = toDatePicker.getValue();
             this.moduleController.setDates(new DateTime(fromDate.getYear(), fromDate.getMonthValue(), fromDate.getDayOfMonth(), 0, 0),
                     new DateTime(toDate.getYear(), toDate.getMonthValue(), toDate.getDayOfMonth(), 0, 0));
+            this.moduleController.setCommitterName(authorTextField.getText());
             this.moduleController.show(comboBox.getSelectionModel().getSelectedItem());
         });
 
@@ -97,7 +102,7 @@ public class ModulesMenuController extends IController {
 
     private void showAccurateFields(ModuleNames moduleName, VBox moduleBox){
         ObservableList<Node> children = moduleBox.getChildren();
-        children.removeAll(fromDatePicker, toDatePicker, moduleGenerateButton, moduleChangeRepositoryButton);
+        children.removeAll(fromDatePicker, toDatePicker, authorTextField, moduleGenerateButton, moduleChangeRepositoryButton);
 
         switch (moduleName){
             case MODULE1:
@@ -113,6 +118,7 @@ public class ModulesMenuController extends IController {
             case MODULE3:
                 children.add(fromDatePicker);
                 children.add(toDatePicker);
+                children.add(authorTextField);
                 children.add(moduleGenerateButton);
                 children.add(moduleChangeRepositoryButton);
                 break;
