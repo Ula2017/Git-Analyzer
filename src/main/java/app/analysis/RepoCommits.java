@@ -25,15 +25,18 @@ public class RepoCommits extends AbstractAnalyzerModule {
     private List<CommitDetails> commits;
     private DateTime projectStartDate = DateTime.now().minusYears(1), projectEndDate = DateTime.now();
 
-        private List<DateTime> dateTimeList;
-//    private DateTime projectStartDate;
-//    private DateTime projectEndDate;
-//    private Fetcher fetcher;
+    @Override
+    public File generateFile(List<CommitDetails> commitDetails, GUIDetails guiDetails) throws Exception {
+        this.commitDetails = commitDetails;
+        this.from = guiDetails.getFrom();
+        this.to = guiDetails.getTo();
+        return createDiagram();
+    }
 
     private int RepoCommits(int year, int month) {
 
         HashSet<DateTime> dateSet = new HashSet<>();
-        List<CommitDetails> commitsForYearAndMonth =  commits.stream()
+        List<CommitDetails> commitsForYearAndMonth =  commitDetails.stream()
                .filter(x -> x.getCommitDate().getYear() == year && x.getCommitDate().getMonthOfYear() == month)
                .collect(Collectors.toList());
         for(CommitDetails comDetails: commitsForYearAndMonth){
@@ -45,20 +48,10 @@ public class RepoCommits extends AbstractAnalyzerModule {
 
     }
 
-    @Override
-    public File generateFile(List<CommitDetails> commitDetails, GUIDetails guiDetails) throws Exception {
-        this.commitDetails = commitDetails;
-        this.from = guiDetails.getFrom();
-        this.to = guiDetails.getTo();
-        return createDiagram();
-    }
 
-    public String generateFile(List<CommitDetails> commitDetails) throws Exception {
-       // this.dateTimeList = data.stream().map(CommitDetails::getCommitDate).collect(Collectors.toList());
-        
-    }
 
-    
+
+
     private XYDataset createDataset(){
         XYSeries series = new XYSeries("Number of commits in whole project.");
 
@@ -107,5 +100,5 @@ public class RepoCommits extends AbstractAnalyzerModule {
         return outputFile;
     }
 
- 
+
 }
