@@ -2,7 +2,7 @@ package app.analysis;
 
 import app.fetch.Fetcher;
 import app.structures.CommitDetails;
-import app.structures.ModuleNames;
+import app.structures.GUIDetails;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
@@ -43,17 +43,21 @@ public class RepoCommits extends AbstractAnalyzerModule {
     }
 
     @Override
-    public ModuleNames getModuleName() {
-        return ModuleNames.MODULE2;
+    public String toString() {
+        return "Repository commit details";
     }
 
-    public String generateFile(List<CommitDetails> data) throws Exception {
-        this.dateTimeList = data.stream().map(CommitDetails::getCommitDate).collect(Collectors.toList());
-        return "file:"+createDiagram();
+    @Override
+    public File generateFile(List<CommitDetails> commitDetails, GUIDetails guiDetails) throws Exception {
+        this.commitDetails = commitDetails;
+        this.from = guiDetails.getFrom();
+        this.to = guiDetails.getTo();
+        this.dateTimeList = this.commitDetails.stream().map(CommitDetails::getCommitDate).collect(Collectors.toList());
+        return createDiagram();
     }
 
     private XYDataset createDataset(){
-        XYSeries series = new XYSeries("Number of commits in whole project.");
+        XYSeries series = new XYSeries("Number of commitDetails in whole project.");
 
         projectStartDate = dateTimeList.get(0);
         projectEndDate = dateTimeList.get(dateTimeList.size() - 1);
@@ -77,16 +81,16 @@ public class RepoCommits extends AbstractAnalyzerModule {
         return dataset;
     }
 
-    private String createDiagram(){
+    private File createDiagram(){
         String path = "images/repoCommits.jpg";
         int width = 640;
         int height = 480;
 
         XYDataset dataset = createDataset();
         JFreeChart chart = ChartFactory.createScatterPlot(
-                "Number of commits in a project dependent on hour of the project existance.",
+                "Number of commitDetails in a project dependent on hour of the project existance.",
                 "Hour of project existance",
-                "Number of commits",
+                "Number of commitDetails",
                 dataset);
 
         File outputFile = new File(path);
@@ -97,6 +101,6 @@ public class RepoCommits extends AbstractAnalyzerModule {
             System.err.println("Problem occurred creating chart.");
         }
 
-        return path;
+        return outputFile;
     }
 }

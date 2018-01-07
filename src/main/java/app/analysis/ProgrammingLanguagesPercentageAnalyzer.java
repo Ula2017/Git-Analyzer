@@ -1,13 +1,11 @@
 package app.analysis;
 
-import app.structures.FileDiffs;
-import app.structures.ModuleNames;
-import com.google.common.io.Files;
+import app.structures.CommitDetails;
+import app.structures.GUIDetails;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.general.DefaultPieDataset;
-import org.joda.time.DateTime;
 
 import java.io.*;
 import java.util.HashMap;
@@ -15,21 +13,21 @@ import java.util.List;
 import java.util.Map;
 
 public class ProgrammingLanguagesPercentageAnalyzer extends AbstractAnalyzerModule {
-	private List<List<FileDiffs>> fileDiffs;
-	private DateTime from = DateTime.now().minusYears(1), to = DateTime.now();
+	@Override
+	public String toString() {
+		return "Percentage of programming languages";
+	}
 
 	@Override
-	public ModuleNames getModuleName() {
-		return ModuleNames.MODULE3;
+	public File generateFile(List<CommitDetails> commitDetails, GUIDetails guiDetails) throws Exception {
+		this.commitDetails = commitDetails;
+		this.from = guiDetails.getFrom();
+		this.to = guiDetails.getTo();
+		return createFileWithChart();
 	}
 
-	public String generateFile(List<List<FileDiffs>> fileDiffs) throws Exception {
-		this.fileDiffs = fileDiffs;
-        return "file:"+createFileWithChart();
-	}
-
-    private String createFileWithChart() throws Exception {
-        String outputPath = ModuleNames.getPathForOutput(ModuleNames.MODULE3);
+    private File createFileWithChart() throws Exception {
+        String outputPath = getPathForOutput();
         int height = 480;
         int width = 640;
 
@@ -46,27 +44,27 @@ public class ProgrammingLanguagesPercentageAnalyzer extends AbstractAnalyzerModu
             throw new Exception("Problem occurred creating chart.");
         }
 
-        return outputPath;
+        return outputFile;
     }
 
 	private DefaultPieDataset createDataset() throws Exception {
 		Map<String, Integer> types = new HashMap<String, Integer>();
 		int lines;
 
-		for (List<FileDiffs> resultList : fileDiffs) {
-			for (FileDiffs fileDiffs : resultList) {
-				String path = fileDiffs.getFilePath();
-				String ext = Files.getFileExtension(path);
-				lines = countLines(path);
-
-				if (!types.containsKey(ext)) {
-					types.put(ext, lines);
-				} else {
-					int i = types.get(ext);
-					types.put(ext, i + lines);
-				}
-			}
-		}
+//		for (List<FileDiffs> resultList : fileDiffs) {
+//			for (FileDiffs fileDiffs : resultList) {
+//				String path = fileDiffs.getFilePath();
+//				String ext = Files.getFileExtension(path);
+//				lines = countLines(path);
+//
+//				if (!types.containsKey(ext)) {
+//					types.put(ext, lines);
+//				} else {
+//					int i = types.get(ext);
+//					types.put(ext, i + lines);
+//				}
+//			}
+//		}
 
 		DefaultPieDataset dataset = new DefaultPieDataset();
 
@@ -82,7 +80,7 @@ public class ProgrammingLanguagesPercentageAnalyzer extends AbstractAnalyzerModu
 	/*
 	 * private boolean existCommiter(String commiter, int year, int month) {
 	 * 
-	 * List<CommitDetails> commitsForYearAndMonth = commits.stream() .filter(x ->
+	 * List<CommitDetails> commitsForYearAndMonth = commitDetails.stream() .filter(x ->
 	 * x.getCommitDate().getYear() == year && x.getCommitDate().getMonthOfYear() ==
 	 * month) .collect(Collectors.toList());
 	 * 

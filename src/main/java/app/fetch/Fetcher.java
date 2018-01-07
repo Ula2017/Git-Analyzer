@@ -31,7 +31,6 @@ public class Fetcher {
     private RepoDownloader gitDownloader;
     private List<CommitDetails> commitDetailsList;
 
-
     @Inject
     public Fetcher(RepoDownloader repoDownloader) {
         this.gitDownloader = repoDownloader;

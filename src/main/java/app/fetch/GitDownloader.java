@@ -8,10 +8,7 @@ import java.io.File;
 
 
 public class GitDownloader implements RepoDownloader {
-
-    public GitDownloader(){
-        System.out.println("damdamda");
-    }
+    public GitDownloader(){}
 
     @Override
     public Git getRepository(String repoUrl) {

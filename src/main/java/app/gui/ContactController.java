@@ -1,28 +1,17 @@
 package app.gui;
 
-import com.google.inject.Guice;
 import com.google.inject.Injector;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
-import javafx.stage.Stage;
-
-import java.util.Arrays;
 
 /**
  * Created by Karol on 2017-12-10.
  */
 
-public class ContactController extends IController {
-
-    public ContactController(){
-        this.scene = createScene();
-
-    }
+public class ContactController extends AbstractController {
+    public ContactController(){ this.scene = createScene(); }
 
     @Override
     public void show() {
@@ -31,27 +20,24 @@ public class ContactController extends IController {
 
     @Override
     Scene createScene() {
-        GridPane contactGrid = getAbstractGrid(Color.WHITE);
+        Injector injector = AbstractController.injector;
+
+        GridPane contactGrid = getAbstractGrid();
 
         VBox contactBox = new VBox(50);
-        contactGrid.add(contactBox, 0,0);
         contactBox.setMinHeight(700);
         contactBox.setAlignment(Pos.CENTER);
         contactBox.setStyle("-fx-font: 40 Tahoma");
+        contactGrid.add(contactBox, 0,0);
 
-        Text contactTitle = getText("Authors", 70);
-        contactBox.getChildren().add(contactTitle);
+        contactBox.getChildren().addAll(
+                getText("Authors", 70),
+                getText("Email: gitanalyzer@gmail.com", 50),
+                getText("Phone no: +48 789456123", 50),
+                getButton("Back", 350, 55,
+                        () -> injector.getInstance(MainMenuController.class).show())
+        );
 
-        Arrays.asList("Karol Bartyzel", "Karolina Biela", "Agata Bogacz", "Barbara Chraścik",
-                "Justyna Maciąg", "Urszula Soboń")
-                .forEach((x) -> {
-                    contactBox.getChildren().add(getText(x, 50));
-                });
-        Injector injector = IController.injector;
-        Button contactBackButton = getButton("Back", 350, 55,
-                () -> injector.getInstance(MainController.class).show());
-        contactBox.getChildren().add(contactBackButton);
-
-        return new Scene(contactGrid,primaryStage.getWidth(), primaryStage.getHeight());
+        return new Scene(contactGrid, primaryStage.getWidth(), primaryStage.getHeight());
     }
 }

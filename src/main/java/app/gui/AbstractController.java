@@ -18,9 +18,9 @@ import javafx.stage.Stage;
 /**
  * Created by Karol on 2017-12-10.
  */
-public abstract class IController {
+public abstract class AbstractController {
     protected static Stage primaryStage;
-    protected static Injector injector;
+    public static Injector injector;
     protected Scene scene;
 
     protected void changeScene( Scene scene) {
@@ -28,9 +28,13 @@ public abstract class IController {
         primaryStage.show();
     }
 
-    protected GridPane getAbstractGrid(Color color){
+    protected GridPane getAbstractGrid(){
+        return getAbstractGrid(Color.LIGHTGRAY);
+    }
+
+    protected GridPane getAbstractGrid(Color backgroundColor){
         GridPane grid = new GridPane();
-        grid.setBackground(new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY)));
+        grid.setBackground(new Background(new BackgroundFill(backgroundColor, CornerRadii.EMPTY, Insets.EMPTY)));
         grid.setAlignment(Pos.TOP_CENTER);
         grid.setVgap(100);
         grid.setMinSize(primaryStage.getWidth(), primaryStage.getHeight());
@@ -54,10 +58,6 @@ public abstract class IController {
     }
 
     public abstract void show();
-
-    public void show(Object data){
-
-    }
 
     abstract Scene createScene();
 }
