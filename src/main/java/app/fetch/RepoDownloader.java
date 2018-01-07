@@ -4,6 +4,6 @@ import org.eclipse.jgit.api.Git;
 
 public interface RepoDownloader {
 
-    public Git getRepository();
-    public boolean checkIfExistsRemote();
+    public Git getRepository(String repoUrl);
+  //  public boolean checkIfExistsRemote();
 }

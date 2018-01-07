@@ -1,5 +1,7 @@
 package app.gui;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -16,17 +18,15 @@ import java.util.Arrays;
  */
 
 public class ContactController extends IController {
-    private IController mainController;
 
-    public ContactController(Stage primaryStage, IController mainController){
-        this.primaryStage = primaryStage;
+    public ContactController(){
         this.scene = createScene();
-        this.mainController = mainController;
+
     }
 
     @Override
     public void show() {
-        changeScene(primaryStage, this.scene);
+        changeScene( this.scene);
     }
 
     @Override
@@ -42,14 +42,16 @@ public class ContactController extends IController {
         Text contactTitle = getText("Authors", 70);
         contactBox.getChildren().add(contactTitle);
 
-        Arrays.asList("Karol Bartyzel", "Karolina Biela", "Agata Bogacz", "Barbara Chraścik", "Justyna Maciąg", "Urszula Soboń")
+        Arrays.asList("Karol Bartyzel", "Karolina Biela", "Agata Bogacz", "Barbara Chraścik",
+                "Justyna Maciąg", "Urszula Soboń")
                 .forEach((x) -> {
                     contactBox.getChildren().add(getText(x, 50));
                 });
-
-        Button contactBackButton = getButton("Back", 350, 55, () -> mainController.show());
+        Injector injector = IController.injector;
+        Button contactBackButton = getButton("Back", 350, 55,
+                () -> injector.getInstance(MainController.class).show());
         contactBox.getChildren().add(contactBackButton);
 
-        return new Scene(contactGrid, width, heigth);
+        return new Scene(contactGrid,primaryStage.getWidth(), primaryStage.getHeight());
     }
 }

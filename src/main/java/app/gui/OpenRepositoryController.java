@@ -2,6 +2,7 @@ package app.gui;
 
 import app.fetch.Fetcher;
 import app.fetch.RepositoryModule;
+import app.fetch.URLReader;
 import app.structures.CommitDetails;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -15,6 +16,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import javax.sound.midi.SysexMessage;
 import java.util.List;
 
 /**
@@ -22,21 +24,14 @@ import java.util.List;
  */
 
 public class OpenRepositoryController extends IController {
-    private IController analysisMenuController;
-    private IController mainController;
 
-
-    public OpenRepositoryController(Stage primaryStage, IController mainController){
-        this.primaryStage = primaryStage;
+    public OpenRepositoryController(){
         this.scene = createScene();
-        //this.analysisMenuController = new ModulesMenuController(primaryStage, this, this.f);
-        this.mainController = mainController;
-
     }
 
     @Override
     public void show() {
-        changeScene(primaryStage, this.scene);
+        changeScene(this.scene);
     }
 
     @Override
@@ -58,33 +53,35 @@ public class OpenRepositoryController extends IController {
         TextField repoPathTextField = new TextField();
         repoPathTextField.setPrefHeight(40);
         openRepositoryBox.getChildren().add(repoPathTextField);
+        Injector injector = IController.injector;
 
         Button openRepositoryButton = getButton("Open repository", 350, 55, () -> {
 
-                    Injector injector = Guice.createInjector(new RepositoryModule(repoPathTextField.getText()));
-                    Fetcher f = injector.getInstance(Fetcher.class);
+                    if (URLReader.checkIfExistsRemote(repoPathTextField.getText())) {
 
-                    if (f.getGitDownloader().checkIfExistsRemote()) {
+                        Fetcher fetcher = injector.getInstance(Fetcher.class);
+                        fetcher.prepereDownloader(repoPathTextField.getText());
                         repoPathTextField.clear();
-                        List<CommitDetails> results= (List<CommitDetails>)(List<?>)f.getAllCommits();
-                        for (CommitDetails r : results) {
-                            System.out.println(r.getCommitDate() + " " + r.getAuthorName() + " " + r.getCommitMessage());
-                        }
-                        this.analysisMenuController = new ModulesMenuController(primaryStage, this,injector);
-                       this.analysisMenuController.show();
+                        fetcher.getAllCommits();
+//                        List<CommitDetails> results= (List<CommitDetails>)(List<?>)f.getAllCommits();
+//                        for (CommitDetails r : results) {
+//                            System.out.println(r.getCommitDate() + " " + r.getAuthorName() + " " + r.getCommitMessage());
+//                        }
+                        injector.getInstance(ModulesMenuController.class).show();
+
                     } else {
-                        //f.getGitDownloader().setRepoUrl(null);
                         repoPathTextField.setStyle("-fx-border-color: red");
                     }
-
 
                 }
         );
         openRepositoryBox.getChildren().add(openRepositoryButton);
-        Button openRepositoryBackButton = getButton("Back", 350, 55, () -> { repoPathTextField.clear(); mainController.show(); });
+        Button openRepositoryBackButton = getButton("Back", 350, 55,
+                () -> { repoPathTextField.clear(); injector.getInstance(MainController.class).show();
+        });
         openRepositoryBox.getChildren().add(openRepositoryBackButton);
 
-        return new Scene(openRepositoryGrid, width, heigth);
+        return new Scene(openRepositoryGrid, primaryStage.getWidth(), primaryStage.getHeight());
     }
 
 }

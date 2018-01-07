@@ -2,7 +2,10 @@ package app.gui;
 
 import app.analysis.*;
 import app.fetch.Fetcher;
+import app.fetch.RepositoryModule;
+import app.structures.CommitDetails;
 import app.structures.ModuleNames;
+import com.google.inject.Guice;
 import com.google.inject.Injector;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -16,18 +19,15 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import org.joda.time.DateTime;
 
+import java.util.List;
+
 public class ModuleController extends IController{
-    private IController analysisMenuController;
     private ModuleNames moduleName;
     private String committerName;
     private DateTime fromDate;
     private DateTime toDate;
-    private Injector f;
 
-    public ModuleController(Stage primaryStage, ModulesMenuController modulesMenuController, Injector f) {
-        this.primaryStage = primaryStage;
-        this.analysisMenuController = modulesMenuController;
-        this.f=f;
+    public ModuleController() {
     }
 
     public void setDates(DateTime from, DateTime to){
@@ -41,7 +41,7 @@ public class ModuleController extends IController{
 
     @Override
     public void show() {
-        changeScene(primaryStage, createScene());
+        changeScene( createScene());
     }
 
     @Override
@@ -53,7 +53,13 @@ public class ModuleController extends IController{
     @Override
     Scene createScene() {
         GridPane moduleGrid = getAbstractGrid(Color.WHITE);
-        Fetcher fetcher = f.getInstance(Fetcher.class);
+        Injector injector = IController.injector;
+        Fetcher fetcher = injector.getInstance(Fetcher.class);
+        //to check
+        List<CommitDetails> results= fetcher.getAllCommits();
+        for (CommitDetails r : results) {
+            System.out.println(r.getCommitDate() + " " + r.getAuthorName() + " " + r.getCommitMessage());
+        }
 
         VBox moduleBox = new VBox(50);
         moduleBox.setMinHeight(700);
@@ -95,9 +101,10 @@ public class ModuleController extends IController{
             System.err.println(e.toString());
         }
 
-        Button moduleBackButton = getButton("Back", 450, 55, () -> this.analysisMenuController.show());
+        Button moduleBackButton = getButton("Back", 450, 55,
+                () -> injector.getInstance(ModulesMenuController.class).show());
         moduleBox.getChildren().add(moduleBackButton);
 
-        return new Scene(moduleGrid, width, heigth);
+        return new Scene(moduleGrid, primaryStage.getWidth(), primaryStage.getHeight());
     }
 }

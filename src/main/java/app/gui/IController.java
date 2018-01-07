@@ -1,5 +1,6 @@
 package app.gui;
 
+import com.google.inject.Injector;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -18,12 +19,11 @@ import javafx.stage.Stage;
  * Created by Karol on 2017-12-10.
  */
 public abstract class IController {
-    protected Stage primaryStage;
+    protected static Stage primaryStage;
+    protected static Injector injector;
     protected Scene scene;
-    protected static double width;
-    protected static double heigth;
 
-    protected void changeScene(Stage primaryStage, Scene scene) {
+    protected void changeScene( Scene scene) {
         primaryStage.setScene(scene);
         primaryStage.show();
     }

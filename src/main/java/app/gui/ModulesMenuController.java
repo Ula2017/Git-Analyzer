@@ -2,6 +2,7 @@ package app.gui;
 
 import app.analysis.Analyzer;
 import app.structures.ModuleNames;
+import com.google.inject.Guice;
 import com.google.inject.Injector;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -27,8 +28,6 @@ import java.util.Objects;
  */
 
 public class ModulesMenuController extends IController {
-    private IController openRepositoryController;
-    private ModuleController moduleController;
     private ModuleNames moduleName;
     private DatePicker fromDatePicker;
     private DatePicker toDatePicker;
@@ -37,16 +36,13 @@ public class ModulesMenuController extends IController {
     private Button moduleGenerateButton;
     private Button moduleChangeRepositoryButton;
 
-    public ModulesMenuController(Stage primaryStage, IController openRepositoryController, Injector f){
-        this.primaryStage = primaryStage;
+    public ModulesMenuController() {
         this.scene = createScene();
-        this.openRepositoryController = openRepositoryController;
-        this.moduleController = new ModuleController(primaryStage, this, f);
     }
 
     @Override
     public void show() {
-        changeScene(primaryStage, scene);
+        changeScene(scene);
     }
 
     @Override
@@ -71,6 +67,7 @@ public class ModulesMenuController extends IController {
                     .findFirst().get();
             showAccurateFields(moduleName, moduleMenuBox);
         });
+        Injector injector = IController.injector;
         moduleMenuBox.getChildren().add(comboBox);
         comboBox.setVisibleRowCount(5);
         toDatePicker = new DatePicker(LocalDate.now());
@@ -88,16 +85,19 @@ public class ModulesMenuController extends IController {
         moduleGenerateButton = getButton("Generate", 450, 55, () -> {
             LocalDate fromDate = fromDatePicker.getValue();
             LocalDate toDate = toDatePicker.getValue();
-            this.moduleController.setDates(new DateTime(fromDate.getYear(), fromDate.getMonthValue(), fromDate.getDayOfMonth(), 0, 0),
+            ModuleController moduleController = injector.getInstance(ModuleController.class);
+            moduleController.setDates(new DateTime(fromDate.getYear(), fromDate.getMonthValue(), fromDate.getDayOfMonth(), 0, 0),
                     new DateTime(toDate.getYear(), toDate.getMonthValue(), toDate.getDayOfMonth(), 0, 0));
-            this.moduleController.setCommitterName(authorTextField.getText());
-            this.moduleController.show(comboBox.getSelectionModel().getSelectedItem());
+            moduleController.setCommitterName(authorTextField.getText());
+            System.out.println("jestem tu");
+            moduleController.show(comboBox.getSelectionModel().getSelectedItem());
         });
 
-        moduleChangeRepositoryButton = getButton("Change Repository", 450, 55, () -> this.openRepositoryController.show());
+        moduleChangeRepositoryButton = getButton("Change Repository", 450, 55,
+                () -> injector.getInstance(OpenRepositoryController.class).show());
         showAccurateFields(moduleName, moduleMenuBox);
 
-        return new Scene(moduleMenuGrid, width, heigth);
+        return new Scene(moduleMenuGrid, primaryStage.getWidth(), primaryStage.getHeight());
     }
 
     private void showAccurateFields(ModuleNames moduleName, VBox moduleBox){

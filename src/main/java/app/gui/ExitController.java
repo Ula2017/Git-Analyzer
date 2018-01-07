@@ -19,8 +19,7 @@ import javafx.stage.Stage;
 public class ExitController extends IController {
     private Popup popup;
 
-    public ExitController(Stage primaryStage){
-        this.primaryStage = primaryStage;
+    public ExitController(){
         this.popup = createPopup();
     }
 
@@ -41,7 +40,8 @@ public class ExitController extends IController {
 
     private Popup createPopup() {
         final Popup popup = new Popup();
-        popup.setWidth(600);popup.setHeight(400);
+        popup.setWidth(600);
+        popup.setHeight(400);
 
         GridPane exitGrid = getAbstractGrid(Color.AZURE);
         popup.getContent().add(exitGrid);

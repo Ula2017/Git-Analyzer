@@ -6,6 +6,10 @@ public class CommitDetails {
     private final DateTime commitDate;
     private final String authorName;
     private final String commitMessage;
+    //string branch
+    //List<String> files
+    //List<Line> addedLine
+    //List<Line> deletedLine
 
     public CommitDetails(DateTime commitDate, String authorName, String commitMessage){
         this.commitDate = commitDate;

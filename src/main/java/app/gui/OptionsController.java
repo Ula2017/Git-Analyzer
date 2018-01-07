@@ -1,5 +1,7 @@
 package app.gui;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -14,17 +16,15 @@ import javafx.stage.Stage;
  */
 
 public class OptionsController extends IController {
-    private IController mainController;
 
-    public OptionsController(Stage primaryStage, IController mainController){
-        this.primaryStage = primaryStage;
+    public OptionsController(){
         this.scene = createScene();
-        this.mainController = mainController;
+
     }
 
     @Override
     public void show() {
-        changeScene(primaryStage, this.scene);
+        changeScene(this.scene);
     }
 
     @Override
@@ -39,10 +39,11 @@ public class OptionsController extends IController {
 
         Text optionsTitle = getText("Options", 70);
         optionsBox.getChildren().add(optionsTitle);
-
-        Button optionsBackButton = getButton("Back", 350, 55, () -> mainController.show());
+        Injector injector = IController.injector;
+        Button optionsBackButton = getButton("Back", 350, 55,
+                () -> injector.getInstance(MainController.class).show());
         optionsBox.getChildren().add(optionsBackButton);
 
-        return new Scene(optionsGrid, width, heigth);
+        return new Scene(optionsGrid,primaryStage.getWidth(), primaryStage.getHeight());
     }
 }

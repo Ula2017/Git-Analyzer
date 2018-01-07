@@ -1,5 +1,9 @@
 package app.gui;
 
+import app.fetch.RepositoryModule;
+import com.google.inject.Guice;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -12,24 +16,14 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class MainController extends IController {
-    private IController openRepositoryController;
-    private IController optionsController;
-    private IController contactController;
-    private IController exitController;
 
-
-    public MainController(final Stage primaryStage){
-        this.primaryStage = primaryStage;
+    public MainController(){
         this.scene = createScene();
-        this.openRepositoryController = new OpenRepositoryController(primaryStage, this);
-        this.optionsController = new OptionsController(primaryStage, this);
-        this.contactController = new ContactController(primaryStage, this);
-        this.exitController = new ExitController(primaryStage);
     }
 
     @Override
     public void show() {
-        changeScene(primaryStage, this.scene);
+        changeScene(this.scene);
     }
 
     @Override
@@ -44,19 +38,24 @@ public class MainController extends IController {
         menuVBox.setStyle("-fx-font: 40 Tahoma");
 
         ObservableList<Node> menuVBoxChildren = menuVBox.getChildren();
+        Injector injector = IController.injector;
 
-        Button signInButton = getButton("Open repository", 350, 55, () -> this.openRepositoryController.show());
+        Button signInButton = getButton("Open repository", 350, 55,
+                () -> injector.getInstance(OpenRepositoryController.class).show());
         menuVBoxChildren.add(signInButton);
 
-        Button optionsButton = getButton("Options", 350, 55, () -> this.optionsController.show());
+        Button optionsButton = getButton("Options", 350, 55,
+                () -> injector.getInstance(OptionsController.class).show());
         menuVBoxChildren.add(optionsButton);
 
-        Button contactButton = getButton("Contact", 350, 55, () -> this.contactController.show());
+        Button contactButton = getButton("Contact", 350, 55,
+                () -> injector.getInstance(ContactController.class).show());
         menuVBoxChildren.add(contactButton);
 
-        Button exitButton = getButton("Exit", 350, 55, () -> this.exitController.show());
+        Button exitButton = getButton("Exit", 350, 55,
+                () -> injector.getInstance(ExitController.class).show());
         menuVBoxChildren.add(exitButton);
 
-        return new Scene(menuGrid, width, heigth);
+        return new Scene(menuGrid, primaryStage.getWidth(), primaryStage.getHeight());
     }
 }

@@ -5,6 +5,7 @@ import app.structures.FileDiffs;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.eclipse.jgit.api.Git;
+
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
@@ -17,6 +18,7 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.joda.time.DateTime;
+import org.eclipse.jgit.lib.Ref;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,11 +31,28 @@ public class Fetcher {
     private RepoDownloader gitDownloader;
     private List<CommitDetails> commitDetailsList;
 
+
     @Inject
-    public Fetcher(RepoDownloader repoOpener) {
-        this.gitDownloader = repoOpener;
-        this.git = repoOpener.getRepository();
+    public Fetcher(RepoDownloader repoDownloader) {
+        this.gitDownloader = repoDownloader;
         this.commitDetailsList = new ArrayList<>();
+    }
+
+    public void prepereDownloader(String url){
+        this.git = gitDownloader.getRepository(url);
+    }
+
+    public List<Ref> getAllBranch(){
+        List<Ref> call = null;
+        try {
+            call = git.branchList().call();
+        } catch (GitAPIException e) {
+            e.printStackTrace();
+        }
+        for (Ref ref : call) {
+            System.out.println("Branch: " + ref + " " + ref.getName() + " " + ref.getObjectId().getName());
+        }
+        return call;
     }
 
     public RepoDownloader getGitDownloader() {
