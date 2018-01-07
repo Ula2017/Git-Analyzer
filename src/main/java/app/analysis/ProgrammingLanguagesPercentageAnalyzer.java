@@ -8,14 +8,22 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.data.general.DefaultPieDataset;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ProgrammingLanguagesPercentageAnalyzer extends AbstractAnalyzerModule {
+    private List<String> extensions = Arrays.asList(".java", ".cpp", ".cs", ".py",
+            ".c", ".h",
+            ".js", ".html", ".css", ".php",
+            ".sql",
+            ".json", ".xml");
+
 	@Override
 	public String toString() {
-		return "Percentage of programming languages";
+		return "Percentage of lines in different programming languages";
 	}
 
 	@Override
@@ -28,14 +36,13 @@ public class ProgrammingLanguagesPercentageAnalyzer extends AbstractAnalyzerModu
 
     private File createFileWithChart() throws Exception {
         String outputPath = getPathForOutput();
-        int height = 480;
-        int width = 640;
 
         JFreeChart chart = ChartFactory.createPieChart("Lines of code", // chart title
                 createDataset(),
                 true,
                 true,
                 false);
+
         File outputFile = new File(outputPath);
         try {
             ChartUtilities.saveChartAsJPEG(outputFile, chart, width, height);
@@ -49,90 +56,29 @@ public class ProgrammingLanguagesPercentageAnalyzer extends AbstractAnalyzerModu
 
 	private DefaultPieDataset createDataset() throws Exception {
 		Map<String, Integer> types = new HashMap<String, Integer>();
-		int lines;
+		extensions.forEach(e -> types.put(e, 0));
 
-//		for (List<FileDiffs> resultList : fileDiffs) {
-//			for (FileDiffs fileDiffs : resultList) {
-//				String path = fileDiffs.getFilePath();
-//				String ext = Files.getFileExtension(path);
-//				lines = countLines(path);
-//
-//				if (!types.containsKey(ext)) {
-//					types.put(ext, lines);
-//				} else {
-//					int i = types.get(ext);
-//					types.put(ext, i + lines);
-//				}
-//			}
-//		}
+		List<CommitDetails> commitDetailsWithinDate = commitDetails.stream()
+                .filter(cm -> Long.compare(cm.getCommitDate().getMillis(), from.getMillis()) > 0
+                        && Long.compare(cm.getCommitDate().getMillis(), to.getMillis()) < 0)
+                .collect(Collectors.toList());
+
+		commitDetailsWithinDate.forEach(cd -> cd.getFiles().forEach(fd -> {
+            int indexOfLastDot = fd.getFileName().lastIndexOf(".");
+            if(indexOfLastDot != -1){
+                String extension = fd.getFileName().substring(indexOfLastDot);
+                if(extensions.contains(extension))
+                    types.replace(extension, types.get(extension)+fd.getInsertions()-fd.getDeletions());
+            }
+        }));
 
 		DefaultPieDataset dataset = new DefaultPieDataset();
-
-		for (String key : types.keySet()) {
-			dataset.setValue(key, types.get(key));
-		}
+        types.keySet().forEach(key -> {
+            int value = types.get(key);
+            if(value > 0)
+                dataset.setValue(key, value);
+        });
 
 		return dataset;
-	}
-
-
-
-	/*
-	 * private boolean existCommiter(String commiter, int year, int month) {
-	 * 
-	 * List<CommitDetails> commitsForYearAndMonth = commitDetails.stream() .filter(x ->
-	 * x.getCommitDate().getYear() == year && x.getCommitDate().getMonthOfYear() ==
-	 * month) .collect(Collectors.toList());
-	 * 
-	 * 
-	 * for(CommitDetails comDetails: commitsForYearAndMonth){ String name =
-	 * comDetails.getAuthorName(); if(name == commiter) return true; } return false;
-	 * }
-	 
-
-	private void countCode() throws IOException {
-		Fetcher fetcher = new Fetcher(null);
-		Map<String, Integer> types = new HashMap<String, Integer>();
-		int lines;
-		DateTimeFormatter f = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
-		DateTime fromDateTime = f.parseDateTime(from.getYear() + "-" + from.getMonthOfYear() + "-01 00:00:00");
-		DateTime toDateTime = f.parseDateTime(to.getYear() + "-" + to.getMonthOfYear() + "-01 00:00:00");
-
-		List<List<FileDiffs>> resultsDiffList = fetcher.getDiffsFromTimeRange(fromDateTime, toDateTime);
-		for (List<FileDiffs> resultList : resultsDiffList) {
-			for (FileDiffs fileDiffs : resultList) {
-				String path = fileDiffs.getFilePath();
-				String ext = Files.getFileExtension(path);
-				lines = countLines(path);
-
-				if (types.containsKey(ext)) {
-					types.put(ext, lines);
-				} else {
-					int i = types.get(ext);
-					types.put(ext, add(i, lines));
-				}
-			}
-		}
-	}
-*/
-	private static int countLines(String filename) throws IOException {
-		InputStream is = new BufferedInputStream(new FileInputStream(filename));
-		try {
-			byte[] c = new byte[1024];
-			int count = 0;
-			int readChars = 0;
-			boolean empty = true;
-			while ((readChars = is.read(c)) != -1) {
-				empty = false;
-				for (int i = 0; i < readChars; ++i) {
-					if (c[i] == '\n') {
-						++count;
-					}
-				}
-			}
-			return (count == 0 && !empty) ? 1 : count;
-		} finally {
-			is.close();
-		}
 	}
 }

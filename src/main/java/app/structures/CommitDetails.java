@@ -39,5 +39,4 @@ public class CommitDetails {
     public DateTime getCommitDate() { return commitDate; }
     public String getAuthorName(){ return authorName; }
     public String getCommitMessage() { return commitMessage; }
-
 }

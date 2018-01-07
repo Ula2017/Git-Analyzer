@@ -43,6 +43,7 @@ public class MonthlyAmmountOfCommiters extends AbstractAnalyzerModule {
                 "Authors",
                 dataSet);
         chart.getXYPlot().setDomainAxis(sa);
+
         File outputFile = new File(getPathForOutput());
         try {
             ChartUtilities.saveChartAsJPEG(outputFile, chart, width, height);
