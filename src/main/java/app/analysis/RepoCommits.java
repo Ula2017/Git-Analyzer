@@ -2,7 +2,8 @@ package app.analysis;
 
 import app.fetch.Fetcher;
 import app.structures.CommitDetails;
-import app.structures.ModuleNames;
+import app.structures.GUIDetails;
+//import app.structures.ModuleNames;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
@@ -44,28 +45,20 @@ public class RepoCommits extends AbstractAnalyzerModule {
 
     }
 
-//    private List<DateTime> createDemoData(){
-//        DateTime tmpStartDate = new DateTime(1996, 7, 14, 0, 0);
-//        List<DateTime> trialList = new ArrayList<DateTime>();
-//        for (int i = 0; i < 10; i++){
-//            trialList.add(tmpStartDate);
-//            tmpStartDate = tmpStartDate.plusDays(1);
-//        }
-//        return trialList;
-//    }
-
     @Override
-    public ModuleNames getModuleName() {
-        return ModuleNames.MODULE2;
+    public File generateFile(List<CommitDetails> commitDetails, GUIDetails guiDetails) throws Exception {
+        this.commitDetails = commitDetails;
+        this.from = guiDetails.getFrom();
+        this.to = guiDetails.getTo();
+        return createDiagram();
     }
 
     public String generateFile(List<CommitDetails> commitDetails) throws Exception {
        // this.dateTimeList = data.stream().map(CommitDetails::getCommitDate).collect(Collectors.toList());
-        commits = commitDetails;
-
-        return "file:"+createDiagram();
+        
     }
 
+    
     private XYDataset createDataset(){
         XYSeries series = new XYSeries("Number of commits in whole project.");
 
@@ -91,8 +84,8 @@ public class RepoCommits extends AbstractAnalyzerModule {
         return dataset;
     }
 
-    private String createDiagram(){
-        String path = ModuleNames.getPathForOutput(ModuleNames.MODULE2);
+    private File createDiagram(){
+        String path = getPathForOutput();
         int width = 640;
         int height = 480;
 
@@ -111,6 +104,8 @@ public class RepoCommits extends AbstractAnalyzerModule {
             System.err.println("Problem occurred creating chart.");
         }
 
-        return path;
+        return outputFile;
     }
+
+ 
 }
