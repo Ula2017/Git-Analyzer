@@ -1,3 +1,5 @@
+package groovy
+
 import app.fetch.GitDownloader
 import org.eclipse.jgit.api.errors.GitAPIException
 import org.eclipse.jgit.api.errors.JGitInternalException

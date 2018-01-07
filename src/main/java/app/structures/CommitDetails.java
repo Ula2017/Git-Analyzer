@@ -2,11 +2,8 @@ package app.structures;
 
 import org.joda.time.DateTime;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class CommitDetails {
     private final DateTime commitDate;
@@ -26,11 +23,9 @@ public class CommitDetails {
         this.commitMessage = commitMessage;
     }
 
-
     public void addFile(FileDiffs file){
         this.files.add(file);
     }
-
 
     public List<FileDiffs> getFiles() {
         return files;

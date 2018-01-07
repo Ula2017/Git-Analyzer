@@ -4,8 +4,8 @@ import app.structures.CommitDetails;
 import app.structures.FileDiffs;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.apache.commons.io.IOUtils;
 import org.eclipse.jgit.api.Git;
-
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
@@ -21,11 +21,12 @@ import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.joda.time.DateTime;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.commons.io.IOUtils;
 
 
 @Singleton
@@ -69,7 +70,7 @@ public class Fetcher {
     }
 
     public List<CommitDetails> getCommitsFromDateRange(DateTime startDate, DateTime endDate) {
-        return commitDetailsList.stream().filter(d-> d.getCommitDate().isAfter(startDate) && d.getCommitDate().isBefore(endDate)).collect(Collectors.toList());
+        return getAllCommits().stream().filter(d-> d.getCommitDate().isAfter(startDate) && d.getCommitDate().isBefore(endDate)).collect(Collectors.toList());
     }
 
     private List<CommitDetails> generateCommitDetailList() {

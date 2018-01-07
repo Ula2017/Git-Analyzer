@@ -1,9 +1,7 @@
 package app.analysis;
 
-import app.fetch.Fetcher;
 import app.structures.CommitDetails;
 import app.structures.GUIDetails;
-//import app.structures.ModuleNames;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
@@ -14,12 +12,13 @@ import org.joda.time.DateTime;
 import org.joda.time.Hours;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class RepoCommits extends AbstractAnalyzerModule {
+//import app.structures.ModuleNames;
+
+public class RepoCommitsModule extends AbstractAnalyzerModule {
     private static int numberOfIntervals = 5;
 
     private List<CommitDetails> commits;
@@ -27,14 +26,10 @@ public class RepoCommits extends AbstractAnalyzerModule {
 
     @Override
     public File generateFile(List<CommitDetails> commitDetails, GUIDetails guiDetails) throws Exception {
-        this.commitDetails = commitDetails;
-        this.from = guiDetails.getFrom();
-        this.to = guiDetails.getTo();
-        return createDiagram();
+        return createDiagram(commitDetails, guiDetails.getFrom(), guiDetails.getTo());
     }
 
-    private int RepoCommits(int year, int month) {
-
+    private int RepoCommits(List<CommitDetails> commitDetails, int year, int month) {
         HashSet<DateTime> dateSet = new HashSet<>();
         List<CommitDetails> commitsForYearAndMonth =  commitDetails.stream()
                .filter(x -> x.getCommitDate().getYear() == year && x.getCommitDate().getMonthOfYear() == month)
@@ -48,11 +43,7 @@ public class RepoCommits extends AbstractAnalyzerModule {
 
     }
 
-
-
-
-
-    private XYDataset createDataset(){
+    private XYDataset createDataset(List<CommitDetails> commitDetails){
         XYSeries series = new XYSeries("Number of commits in whole project.");
 
         int interval = (Hours.hoursBetween(projectStartDate, projectEndDate).getHours() ) / numberOfIntervals;
@@ -66,7 +57,7 @@ public class RepoCommits extends AbstractAnalyzerModule {
                 month <= (year != projectEndDate.getYear() ? 12 : projectEndDate.getMonthOfYear());
                 month++, i++){
                 hourOfProjectExistance+=interval;
-                numberOfCommits=RepoCommits(year,month);
+                numberOfCommits=RepoCommits(commitDetails, year,month);
                 series.add(hourOfProjectExistance, numberOfCommits);
                 nextInterval = nextInterval.plusHours(interval);
             }
@@ -77,12 +68,12 @@ public class RepoCommits extends AbstractAnalyzerModule {
         return dataset;
     }
 
-    private File createDiagram(){
+    private File createDiagram(List<CommitDetails> commitDetails, DateTime from, DateTime to){
         String path = getPathForOutput();
         int width = 640;
         int height = 480;
 
-        XYDataset dataset = createDataset();
+        XYDataset dataset = createDataset(commitDetails);
         JFreeChart chart = ChartFactory.createScatterPlot(
                 "Number of commits in a project dependent on hour of the project existance.",
                 "Hour of project existance",

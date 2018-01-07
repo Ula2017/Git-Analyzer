@@ -90,16 +90,13 @@ public class ModulesMenuController extends AbstractController {
             ModuleController moduleController = injector.getInstance(ModuleController.class);
             moduleController.setGUIDetails(new GUIDetails(
                     new DateTime(fromDate.getYear(), fromDate.getMonthValue(), fromDate.getDayOfMonth(), 0, 0),
-                    new DateTime(toDate.getYear(), toDate.getMonthValue(), toDate.getDayOfMonth(), 0, 0),
-                    authorTextField.getText()
+                    new DateTime(toDate.getYear(), toDate.getMonthValue(), toDate.getDayOfMonth(), 0, 0)
             ));
             moduleController.setModule((AbstractAnalyzerModule) comboBox.getSelectionModel().getSelectedItem());
             moduleController.show();
         });
         moduleChangeRepositoryButton = getButton("Change Repository", 450, 55,
                 () -> injector.getInstance(OpenRepositoryController.class).show());
-        authorTextField = new TextField();
-        authorTextField.setPrefHeight(40);
 
         showAccurateFields(modulesMenuBox);
 

@@ -10,10 +10,6 @@ import java.util.List;
 public abstract class AbstractAnalyzerModule {
     protected int height = 480;
     protected int width = 640;
-    protected List<CommitDetails> commitDetails;
-    protected DateTime from;
-    protected DateTime to;
-    protected String committerName;
     public abstract File generateFile(List<CommitDetails> commitDetails, GUIDetails guiDetails) throws Exception;
     protected String getPathForOutput(){
         return String.format("images/%s.jpg", toString());

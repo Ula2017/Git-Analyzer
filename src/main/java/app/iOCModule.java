@@ -1,9 +1,9 @@
 package app;
 
 import app.analysis.AbstractAnalyzerModule;
-import app.analysis.MonthlyAmmountOfCommiters;
-import app.analysis.ProgrammingLanguagesPercentageAnalyzer;
-import app.analysis.RepoCommits;
+import app.analysis.MonthlyAmmountOfCommitersModule;
+import app.analysis.ProgrammingLanguagesPercentageModule;
+import app.analysis.RepoCommitsModule;
 import app.fetch.GitDownloader;
 import app.fetch.RepoDownloader;
 import com.google.inject.AbstractModule;
@@ -15,9 +15,9 @@ public class iOCModule extends AbstractModule {
     @Override
     protected void configure() {
         Multibinder<AbstractAnalyzerModule> analyzerModuleMultibinder = Multibinder.newSetBinder(binder(), AbstractAnalyzerModule.class);
-        analyzerModuleMultibinder.addBinding().to(MonthlyAmmountOfCommiters.class);
-        analyzerModuleMultibinder.addBinding().to(ProgrammingLanguagesPercentageAnalyzer.class);
-        analyzerModuleMultibinder.addBinding().to(RepoCommits.class);
+        analyzerModuleMultibinder.addBinding().to(MonthlyAmmountOfCommitersModule.class);
+        analyzerModuleMultibinder.addBinding().to(ProgrammingLanguagesPercentageModule.class);
+        analyzerModuleMultibinder.addBinding().to(RepoCommitsModule.class);
 
         bind(RepoDownloader.class).to(GitDownloader.class);
 

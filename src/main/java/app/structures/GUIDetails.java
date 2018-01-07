@@ -8,12 +8,10 @@ import org.joda.time.DateTime;
 public class GUIDetails {
     private final DateTime from;
     private final DateTime to;
-    private final String committerName;
 
-    public GUIDetails(DateTime from, DateTime to, String committerName) {
+    public GUIDetails(DateTime from, DateTime to) {
         this.from = from;
         this.to = to;
-        this.committerName = committerName;
     }
 
     public DateTime getFrom() {
@@ -22,9 +20,5 @@ public class GUIDetails {
 
     public DateTime getTo() {
         return to;
-    }
-
-    public String getCommitterName() {
-        return committerName;
     }
 }
