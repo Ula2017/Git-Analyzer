@@ -1,29 +1,20 @@
 package app.structures;
 
 public class FileDiffs {
-    private String commitMessage;
-    private String committerName;
-    private String filePath;
+
+    private String fileName;
     private int insertions;
     private int deletions;
+    //private List<Line>linesAdded;
+    //private List<Line>linesDeleted;
 
-    public FileDiffs(String filePath, String commitMessage, String committerName, int insertions, int deletions){
-        this.filePath = filePath;
-        this.commitMessage = commitMessage;
-        this.committerName = committerName;
+    public FileDiffs(String fileName, int insertions, int deletions){
+        this.fileName = fileName;
         this.insertions = insertions;
         this.deletions = deletions;
     }
 
-    public String getFilePath(){
-        return filePath;
-    }
-    public String getCommitMessage(){
-        return commitMessage;
-    }
-    public String getCommitterName(){
-        return committerName;
-    }
+    public String getFileName(){return fileName;};
     public int getInsertions(){
         return insertions;
     }

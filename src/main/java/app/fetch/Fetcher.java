@@ -10,20 +10,23 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.EditList;
-import org.eclipse.jgit.lib.ObjectReader;
-import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.errors.CorruptObjectException;
+import org.eclipse.jgit.errors.MissingObjectException;
+import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
+import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.joda.time.DateTime;
-import org.eclipse.jgit.lib.Ref;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.commons.io.IOUtils;
+
 
 @Singleton
 public class Fetcher {
@@ -37,11 +40,11 @@ public class Fetcher {
         this.commitDetailsList = new ArrayList<>();
     }
 
-    public void prepereDownloader(String url){
+    public void prepereDownloader(String url) {
         this.git = gitDownloader.getRepository(url);
     }
 
-    public List<Ref> getAllBranch(){
+    public List<Ref> getAllBranch() {
         List<Ref> call = null;
         try {
             call = git.branchList().call();
@@ -65,85 +68,73 @@ public class Fetcher {
         return this.commitDetailsList;
     }
 
+    public List<CommitDetails> getCommitsFromDateRange(DateTime startDate, DateTime endDate) {
+        return commitDetailsList.stream().filter(d-> d.getCommitDate().isAfter(startDate) && d.getCommitDate().isBefore(endDate)).collect(Collectors.toList());
+    }
+
     private List<CommitDetails> generateCommitDetailList() {
         try {
             for (RevCommit rev : git.log().call()) {
-                this.commitDetailsList.add(new CommitDetails(
+                CommitDetails newCommit = new CommitDetails(
                         new DateTime(rev.getAuthorIdent().getWhen()),
                         rev.getAuthorIdent().getName(),
-                        rev.getShortMessage()));
+                        rev.getShortMessage());
+
+                if(rev.getParentCount()!=0){
+                    List<DiffEntry> diffEntries = git.diff()
+                            .setOldTree(getCanonicalTreeParser(rev.getParent(0)))
+                            .setNewTree(getCanonicalTreeParser(rev))
+                            .call();
+
+                    for (DiffEntry diffEntry : diffEntries) {
+                        int deletions;
+                        int insertions;
+                        DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE);
+                        diffFormatter.setRepository(git.getRepository());
+                        diffFormatter.setContext(0);
+                        EditList edits = diffFormatter.toFileHeader(diffEntry).toEditList();
+
+                        deletions = edits.stream().mapToInt(e -> e.getLengthA()).sum();
+                        insertions = edits.stream().mapToInt(e -> e.getLengthB()).sum();
+
+                        newCommit.addFile(new FileDiffs(diffEntry.getNewPath(), insertions, deletions));
+                    }
+                }
+                else{
+                    TreeWalk treeWalk = new TreeWalk(git.getRepository());
+                    treeWalk.addTree(rev.getTree());
+                    treeWalk.setRecursive(true);
+
+                    while(treeWalk.next()) {
+                        String path = treeWalk.getPathString();
+
+                        ObjectId objectId = treeWalk.getObjectId(0);
+                        ObjectLoader loader = git.getRepository().open(objectId);
+
+                        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                        loader.copyTo(stream);
+
+                        int insertions = IOUtils.readLines(new ByteArrayInputStream(stream.toByteArray()), "UTF-8").size();
+
+                        newCommit.addFile(new FileDiffs(path, insertions, 0));
+
+                    }
+                    treeWalk.close();
+                }
+
+                this.commitDetailsList.add(newCommit);
             }
         } catch (GitAPIException e) {
+            e.printStackTrace();
+        } catch (CorruptObjectException e) {
+            e.printStackTrace();
+        } catch (MissingObjectException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
         return commitDetailsList;
-    }
-
-    private List<RevCommit> getRevCommits() throws GitAPIException {
-        Iterable<RevCommit> revCommitsIterable = git.log().call();
-        List<RevCommit> revCommits = new ArrayList<>();
-        revCommitsIterable.forEach(revCommits::add);
-        return revCommits;
-    }
-
-    public List<List<FileDiffs>> getDiffsFromTimeRange(String committerName, DateTime startDate, DateTime endDate) {
-        List<List<FileDiffs>> results = new ArrayList<>();
-        try {
-            List<RevCommit> rc = getRevCommits();
-            rc.stream().forEach(x -> System.out.println(x.getCommitterIdent().getName()));
-            System.out.println(committerName);
-
-            List<RevCommit> filteredCommits = getRevCommits()
-                    .stream()
-//                    .filter(d -> Objects.equals(d.getCommitterIdent().getName(), committerName)
-//                            && new DateTime(d.getCommitterIdent().getWhen()).isAfter(startDate)
-//                            && new DateTime(d.getCommitterIdent().getWhen()).isBefore(endDate))
-                    .filter(d -> new DateTime(d.getAuthorIdent().getWhen()).isAfter(startDate) && new DateTime(d.getAuthorIdent().getWhen()).isBefore(endDate))
-                    .collect(Collectors.toList());
-
-
-            for (RevCommit newCommit : filteredCommits) {
-                if (newCommit.getParentCount() != 0) {
-                    RevCommit oldCommit = newCommit.getParent(0);
-                    results.add(getDiff(oldCommit, newCommit));
-                }
-            }
-        } catch (GitAPIException | IOException e) {
-            e.printStackTrace();
-        }
-
-        return results;
-    }
-
-    private List<FileDiffs> getDiff(RevCommit newCommit, RevCommit oldCommit) throws GitAPIException, IOException {
-
-        List<DiffEntry> diffEntries = git.diff()
-                .setOldTree(getCanonicalTreeParser(oldCommit))
-                .setNewTree(getCanonicalTreeParser(newCommit))
-                .call();
-
-        List<FileDiffs> results = new ArrayList<>();
-
-        for (DiffEntry diffEntry : diffEntries) {
-            int deletions;
-            int insertions;
-            DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE);
-            diffFormatter.setRepository(git.getRepository());
-            diffFormatter.setContext(0);
-            EditList edits = diffFormatter.toFileHeader(diffEntry).toEditList();
-
-            deletions = edits.stream().mapToInt(e -> e.getLengthA()).sum();
-            insertions = edits.stream().mapToInt(e -> e.getLengthB()).sum();
-
-            results.add(new FileDiffs(diffEntry.getNewPath(),
-                    newCommit.getShortMessage(),
-                    newCommit.getCommitterIdent().getName(),
-                    insertions,
-                    deletions));
-        }
-        return results;
-
     }
 
     private CanonicalTreeParser getCanonicalTreeParser(RevCommit revCommit) throws IOException {
