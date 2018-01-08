@@ -6,21 +6,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CommitDetails {
-    private final DateTime commitDate;
-    private final String authorName;
-    private final String commitMessage;
+    private DateTime commitDate;
+    private String authorName;
+    private String commitMessage;
     private final List<FileDiffs> files = new ArrayList<>();
-    //string branch
-//    List<String> files;
-//    Map<String, Integer> linesAdded;
-//    Map<String, Integer> linesDeleted;
-    //List<Line> addedLine
-    //List<Line> deletedLine
+    private String branch;
 
-    public CommitDetails(DateTime commitDate, String authorName, String commitMessage){
-        this.commitDate = commitDate;
-        this.authorName = authorName;
-        this.commitMessage = commitMessage;
+    public CommitDetails(){
     }
 
     public void addFile(FileDiffs file){
@@ -34,4 +26,13 @@ public class CommitDetails {
     public DateTime getCommitDate() { return commitDate; }
     public String getAuthorName(){ return authorName; }
     public String getCommitMessage() { return commitMessage; }
+    public String getBranch() { return branch; }
+
+    public void setPrimaryInformation(DateTime date, String authorName, String commitMessage, String branch){
+        this.commitDate=date;
+        this.authorName=authorName;
+        this.commitMessage= commitMessage;
+        this.branch = branch;
+
+    }
 }

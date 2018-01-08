@@ -2,6 +2,8 @@ package app.gui;
 
 import app.fetch.Fetcher;
 import app.fetch.URLReader;
+import app.structures.CommitDetails;
+import app.structures.FileDiffs;
 import com.google.inject.Injector;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -9,6 +11,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import org.joda.time.DateTime;
+
+import java.util.List;
 
 /**
  * Created by Karol on 2017-12-10.
@@ -41,7 +46,9 @@ public class OpenRepositoryController extends AbstractController {
         Button openRepositoryButton = getButton("Open repository", 350, 55, () -> {
                     if (URLReader.checkIfExistsRemote(repoPathTextField.getText())) {
                         Fetcher fetcher = injector.getInstance(Fetcher.class);
-                        fetcher.prepereDownloader(repoPathTextField.getText());
+                        fetcher.prepareDownloader(repoPathTextField.getText());
+
+                        List<CommitDetails> commitDetailsList = fetcher.getCommitsFromDateRange(new DateTime(2017, 1,1, 12, 1, 1, 1), new DateTime(2017, 12, 12, 12,1, 1, 1));
                         injector.getInstance(ModulesMenuController.class).show();
                         repoPathTextField.clear();
                     } else {

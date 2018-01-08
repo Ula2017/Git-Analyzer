@@ -1,16 +1,21 @@
 package app.fetch;
 
+import app.gui.AbstractController;
 import app.structures.CommitDetails;
 import app.structures.FileDiffs;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import com.google.inject.Singleton;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.EditList;
+import org.eclipse.jgit.errors.AmbiguousObjectException;
 import org.eclipse.jgit.errors.CorruptObjectException;
+import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -25,13 +30,16 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
 @Singleton
 public class Fetcher {
     private Git git;
+    private Repository repository;
     private RepoDownloader gitDownloader;
     private List<CommitDetails> commitDetailsList;
 
@@ -41,25 +49,10 @@ public class Fetcher {
         this.commitDetailsList = new ArrayList<>();
     }
 
-    public void prepereDownloader(String url) {
+    public void prepareDownloader(String url) {
         this.git = gitDownloader.getRepository(url);
-    }
+        this.repository = git.getRepository();
 
-    public List<Ref> getAllBranch() {
-        List<Ref> call = null;
-        try {
-            call = git.branchList().call();
-        } catch (GitAPIException e) {
-            e.printStackTrace();
-        }
-        for (Ref ref : call) {
-            System.out.println("Branch: " + ref + " " + ref.getName() + " " + ref.getObjectId().getName());
-        }
-        return call;
-    }
-
-    public RepoDownloader getGitDownloader() {
-        return gitDownloader;
     }
 
     public List<CommitDetails> getAllCommits() {
@@ -70,18 +63,21 @@ public class Fetcher {
     }
 
     public List<CommitDetails> getCommitsFromDateRange(DateTime startDate, DateTime endDate) {
-        return getAllCommits().stream().filter(d-> d.getCommitDate().isAfter(startDate) && d.getCommitDate().isBefore(endDate)).collect(Collectors.toList());
+        return getAllCommits().stream().filter(d-> d.getCommitDate().isAfter(startDate)
+                && d.getCommitDate().isBefore(endDate)).collect(Collectors.toList());
     }
 
     private List<CommitDetails> generateCommitDetailList() {
         try {
             for (RevCommit rev : git.log().call()) {
-                CommitDetails newCommit = new CommitDetails(
-                        new DateTime(rev.getAuthorIdent().getWhen()),
-                        rev.getAuthorIdent().getName(),
-                        rev.getShortMessage());
+                Injector injector = AbstractController.injector;
 
-                if(rev.getParentCount()!=0){
+                CommitDetails commit = injector.getInstance(CommitDetails.class);
+                commit.setPrimaryInformation(new DateTime(rev.getAuthorIdent().getWhen()),
+                        rev.getAuthorIdent().getName(),
+                        rev.getShortMessage(), getCommitBranch(rev));
+
+                if (rev.getParentCount() != 0) {
                     List<DiffEntry> diffEntries = git.diff()
                             .setOldTree(getCanonicalTreeParser(rev.getParent(0)))
                             .setNewTree(getCanonicalTreeParser(rev))
@@ -91,55 +87,58 @@ public class Fetcher {
                         int deletions;
                         int insertions;
                         DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE);
-                        diffFormatter.setRepository(git.getRepository());
+                        diffFormatter.setRepository(repository);
                         diffFormatter.setContext(0);
                         EditList edits = diffFormatter.toFileHeader(diffEntry).toEditList();
 
                         deletions = edits.stream().mapToInt(e -> e.getLengthA()).sum();
                         insertions = edits.stream().mapToInt(e -> e.getLengthB()).sum();
 
-                        newCommit.addFile(new FileDiffs(diffEntry.getNewPath(), insertions, deletions));
+                        FileDiffs fileDiffs = injector.getInstance(FileDiffs.class);
+                        fileDiffs.setInformation(diffEntry.getNewPath(), insertions, deletions);
+                        commit.addFile(fileDiffs);
+
                     }
-                }
-                else{
-                    TreeWalk treeWalk = new TreeWalk(git.getRepository());
+
+
+                } else {
+                    TreeWalk treeWalk = new TreeWalk(repository);
                     treeWalk.addTree(rev.getTree());
                     treeWalk.setRecursive(true);
 
-                    while(treeWalk.next()) {
+                    while (treeWalk.next()) {
                         String path = treeWalk.getPathString();
 
                         ObjectId objectId = treeWalk.getObjectId(0);
-                        ObjectLoader loader = git.getRepository().open(objectId);
+                        ObjectLoader loader = repository.open(objectId);
 
                         ByteArrayOutputStream stream = new ByteArrayOutputStream();
                         loader.copyTo(stream);
 
                         int insertions = IOUtils.readLines(new ByteArrayInputStream(stream.toByteArray()), "UTF-8").size();
 
-                        newCommit.addFile(new FileDiffs(path, insertions, 0));
+                        FileDiffs fileDiffs = injector.getInstance(FileDiffs.class);
+                        fileDiffs.setInformation(path, insertions, 0);
+                        commit.addFile(fileDiffs);
 
                     }
                     treeWalk.close();
                 }
 
-                this.commitDetailsList.add(newCommit);
+                this.commitDetailsList.add(commit);
             }
-        } catch (GitAPIException e) {
-            e.printStackTrace();
-        } catch (CorruptObjectException e) {
-            e.printStackTrace();
-        } catch (MissingObjectException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        }
+        catch (IOException e1) {
+            e1.printStackTrace();
+        }
+        catch (GitAPIException e1) {
+            e1.printStackTrace();
         }
 
         return commitDetailsList;
     }
 
     private CanonicalTreeParser getCanonicalTreeParser(RevCommit revCommit) throws IOException {
-        Repository repository = git.getRepository();
         try (RevWalk revWalk = new RevWalk(repository)) {
             RevTree revTree = revWalk.parseTree(revCommit.getTree().getId());
 
@@ -151,6 +150,53 @@ public class Fetcher {
             return canonicalTreeParser;
         }
     }
+
+    private String getCommitBranch(RevCommit co) {
+        List<Ref> call;
+        String branchName;
+        try {
+
+            call = git.branchList().call();
+            for (Ref ref : call) {
+                branchName = ref.getName();
+                for (RevCommit commit : git.log().add(repository.resolve(branchName)).call()) {
+                    if (commit.getName().equals(co.getName())) {
+                        return branchName;
+
+                    }
+                }
+            }
+        } catch (GitAPIException e) {
+                e.printStackTrace();
+        } catch (IOException e) {
+                e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public Map<String, Integer> getBranchCommit(){
+        List<Ref> call;
+        Map<String, Integer> map = new HashMap<>();
+        try {
+            call = git.branchList().call();
+            for (Ref ref : call) {
+                int i =0;
+                for (RevCommit commit : git.log().add(repository.resolve(ref.getName())).call()) {
+                    i++;
+                }
+                map.put(ref.getName(), i);
+            }
+
+        } catch (GitAPIException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return map;
+    }
+
+
 }
 
 
