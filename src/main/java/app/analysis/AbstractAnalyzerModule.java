@@ -14,4 +14,7 @@ public abstract class AbstractAnalyzerModule {
     protected String getPathForOutput(){
         return String.format("images/%s.jpg", toString());
     }
+    protected String getPathForOutputTxt(){
+        return String.format("images/%s.txt", toString());
+    }
 }
