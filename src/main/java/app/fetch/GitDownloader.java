@@ -25,7 +25,10 @@ public class GitDownloader implements RepoDownloader {
 
         }
         catch (JGitInternalException e){ System.err.println("Already cloned"); }
-        catch (GitAPIException e) { e.printStackTrace(); }
+        catch (GitAPIException e) {
+            System.err.println("Problem with cloning remote repository.");
+            System.exit(1);
+        }
 
         return git;
     }

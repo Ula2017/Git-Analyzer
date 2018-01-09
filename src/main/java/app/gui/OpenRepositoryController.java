@@ -47,8 +47,6 @@ public class OpenRepositoryController extends AbstractController {
                     if (URLReader.checkIfExistsRemote(repoPathTextField.getText())) {
                         Fetcher fetcher = injector.getInstance(Fetcher.class);
                         fetcher.prepareDownloader(repoPathTextField.getText());
-
-                        List<CommitDetails> commitDetailsList = fetcher.getCommitsFromDateRange(new DateTime(2017, 1,1, 12, 1, 1, 1), new DateTime(2017, 12, 12, 12,1, 1, 1));
                         injector.getInstance(ModulesMenuController.class).show();
                         repoPathTextField.clear();
                     } else {

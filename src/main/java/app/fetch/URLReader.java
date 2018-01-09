@@ -24,10 +24,9 @@ public class URLReader {
                     ins.close();
             }
             catch (NullPointerException | IOException e) {
-                e.printStackTrace();
+                System.err.println("Error during closing connection.");
             }
         }
-
         return result;
     }
 }

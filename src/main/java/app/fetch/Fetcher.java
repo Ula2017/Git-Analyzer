@@ -9,14 +9,10 @@ import com.google.inject.Singleton;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
+import org.eclipse.jgit.diff.Edit;
 import org.eclipse.jgit.diff.EditList;
-import org.eclipse.jgit.errors.AmbiguousObjectException;
-import org.eclipse.jgit.errors.CorruptObjectException;
-import org.eclipse.jgit.errors.IncorrectObjectTypeException;
-import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
@@ -35,9 +31,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-
 @Singleton
 public class Fetcher {
+
     private Git git;
     private Repository repository;
     private RepoDownloader gitDownloader;
@@ -91,15 +87,14 @@ public class Fetcher {
                         diffFormatter.setContext(0);
                         EditList edits = diffFormatter.toFileHeader(diffEntry).toEditList();
 
-                        deletions = edits.stream().mapToInt(e -> e.getLengthA()).sum();
-                        insertions = edits.stream().mapToInt(e -> e.getLengthB()).sum();
+                        deletions = edits.stream().mapToInt(Edit::getLengthA).sum();
+                        insertions = edits.stream().mapToInt(Edit::getLengthB).sum();
 
                         FileDiffs fileDiffs = injector.getInstance(FileDiffs.class);
                         fileDiffs.setInformation(diffEntry.getNewPath(), insertions, deletions);
                         commit.addFile(fileDiffs);
 
                     }
-
 
                 } else {
                     TreeWalk treeWalk = new TreeWalk(repository);
@@ -127,14 +122,12 @@ public class Fetcher {
 
                 this.commitDetailsList.add(commit);
             }
+        } catch (IOException | GitAPIException e) {
+            System.err.println("Error during creating Commits Details.");
+            //return?
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
         }
-        catch (IOException e1) {
-            e1.printStackTrace();
-        }
-        catch (GitAPIException e1) {
-            e1.printStackTrace();
-        }
-
         return commitDetailsList;
     }
 
@@ -151,7 +144,7 @@ public class Fetcher {
         }
     }
 
-    private String getCommitBranch(RevCommit co) {
+    private String getCommitBranch(RevCommit co) throws Exception {
         List<Ref> call;
         String branchName;
         try {
@@ -167,9 +160,9 @@ public class Fetcher {
                 }
             }
         } catch (GitAPIException e) {
-                e.printStackTrace();
+            throw new Exception("Problem occurred getting branch list from Git.");
         } catch (IOException e) {
-                e.printStackTrace();
+            throw new Exception("Problem occurred getting commit list from branch.");
         }
 
         return null;
@@ -188,10 +181,8 @@ public class Fetcher {
                 map.put(ref.getName(), i);
             }
 
-        } catch (GitAPIException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (GitAPIException | IOException e) {
+            System.err.println("Problem occured getting amount of commit per branch. ");
         }
         return map;
     }
