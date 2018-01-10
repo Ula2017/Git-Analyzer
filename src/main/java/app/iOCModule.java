@@ -3,7 +3,7 @@ package app;
 import app.analysis.AbstractAnalyzerModule;
 import app.analysis.MonthlyAmmountOfCommitersModule;
 import app.analysis.ProgrammingLanguagesPercentageModule;
-import app.analysis.RankingModule;
+import app.analysis.ClassificationModule;
 import app.analysis.RepoCommitsModule;
 import app.fetch.GitDownloader;
 import app.fetch.RepoDownloader;
@@ -17,7 +17,7 @@ public class iOCModule extends AbstractModule {
         analyzerModuleMultibinder.addBinding().to(MonthlyAmmountOfCommitersModule.class);
         analyzerModuleMultibinder.addBinding().to(ProgrammingLanguagesPercentageModule.class);
         analyzerModuleMultibinder.addBinding().to(RepoCommitsModule.class);
-        analyzerModuleMultibinder.addBinding().to(RankingModule.class);
+        analyzerModuleMultibinder.addBinding().to(ClassificationModule.class);
         bind(RepoDownloader.class).to(GitDownloader.class);
 
     }
