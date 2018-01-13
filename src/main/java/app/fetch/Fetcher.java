@@ -73,52 +73,9 @@ public class Fetcher {
                         rev.getAuthorIdent().getName(),
                         rev.getShortMessage(), getCommitBranch(rev));
 
-                if (rev.getParentCount() != 0) {
-                    List<DiffEntry> diffEntries = git.diff()
-                            .setOldTree(getCanonicalTreeParser(rev.getParent(0)))
-                            .setNewTree(getCanonicalTreeParser(rev))
-                            .call();
 
-                    for (DiffEntry diffEntry : diffEntries) {
-                        int deletions;
-                        int insertions;
-                        DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE);
-                        diffFormatter.setRepository(repository);
-                        diffFormatter.setContext(0);
-                        EditList edits = diffFormatter.toFileHeader(diffEntry).toEditList();
-
-                        deletions = edits.stream().mapToInt(Edit::getLengthA).sum();
-                        insertions = edits.stream().mapToInt(Edit::getLengthB).sum();
-
-                        FileDiffs fileDiffs = injector.getInstance(FileDiffs.class);
-                        fileDiffs.setInformation(diffEntry.getNewPath(), insertions, deletions);
-                        commit.addFile(fileDiffs);
-
-                    }
-
-                } else {
-                    TreeWalk treeWalk = new TreeWalk(repository);
-                    treeWalk.addTree(rev.getTree());
-                    treeWalk.setRecursive(true);
-
-                    while (treeWalk.next()) {
-                        String path = treeWalk.getPathString();
-
-                        ObjectId objectId = treeWalk.getObjectId(0);
-                        ObjectLoader loader = repository.open(objectId);
-
-                        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                        loader.copyTo(stream);
-
-                        int insertions = IOUtils.readLines(new ByteArrayInputStream(stream.toByteArray()), "UTF-8").size();
-
-                        FileDiffs fileDiffs = injector.getInstance(FileDiffs.class);
-                        fileDiffs.setInformation(path, insertions, 0);
-                        commit.addFile(fileDiffs);
-
-                    }
-                    treeWalk.close();
-                }
+                addDiffsToCommit(rev, commit, injector);
+                addLinesForAllFiles(rev, commit, injector);
 
                 this.commitDetailsList.add(commit);
             }
@@ -129,6 +86,84 @@ public class Fetcher {
             System.err.println(e.getMessage());
         }
         return commitDetailsList;
+    }
+
+
+    private void addLinesForAllFiles(RevCommit rev, CommitDetails commit, Injector injector) {
+
+        TreeWalk treeWalk = new TreeWalk(repository);
+        try {
+            treeWalk.setRecursive(true);
+            treeWalk.addTree(rev.getTree());
+
+            while (treeWalk.next()) {
+                String path = treeWalk.getPathString();
+
+                ObjectId objectId = treeWalk.getObjectId(0);
+                ObjectLoader loader = repository.open(objectId);
+
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                loader.copyTo(stream);
+
+                int linesNumber = IOUtils.readLines(new ByteArrayInputStream(stream.toByteArray()), "UTF-8").size();
+                FileDiffs fileDiffs = injector.getInstance(FileDiffs.class);
+
+                List<FileDiffs> fileDiffsList = commit.getFiles();
+                boolean flag = false;
+                for (FileDiffs f:fileDiffsList) {
+                    if(f.getFileName().equals(path)){
+                        f.setLinesNumber(linesNumber);
+                        if(rev.getParentCount()==0)
+                            f.setInsertions(linesNumber);
+                        flag = true;
+                    }
+                }
+                if(!flag){
+                    if(rev.getParentCount()==0)
+                        fileDiffs.setInformation(path, linesNumber, 0);
+                    else fileDiffs.setInformation(path,0, 0);
+                    fileDiffs.setLinesNumber(linesNumber);
+                    commit.addFile(fileDiffs);
+                }
+                treeWalk.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private void addDiffsToCommit(RevCommit rev, CommitDetails commit, Injector injector){
+        if (rev.getParentCount() != 0) {
+            List<DiffEntry> diffEntries = null;
+
+            try {
+                diffEntries = git.diff()
+                        .setOldTree(getCanonicalTreeParser(rev.getParent(0)))
+                        .setNewTree(getCanonicalTreeParser(rev))
+                        .call();
+
+                for (DiffEntry diffEntry : diffEntries) {
+                    int deletions;
+                    int insertions;
+                    DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE);
+                    diffFormatter.setRepository(repository);
+                    diffFormatter.setContext(0);
+                    EditList edits = diffFormatter.toFileHeader(diffEntry).toEditList();
+                    deletions = edits.stream().mapToInt(Edit::getLengthA).sum();
+                    insertions = edits.stream().mapToInt(Edit::getLengthB).sum();
+
+                    FileDiffs fileDiffs = injector.getInstance(FileDiffs.class);
+                    fileDiffs.setInformation(diffEntry.getNewPath(), insertions, deletions);
+                    commit.addFile(fileDiffs);
+
+                }
+            } catch (GitAPIException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private CanonicalTreeParser getCanonicalTreeParser(RevCommit revCommit) throws IOException {
