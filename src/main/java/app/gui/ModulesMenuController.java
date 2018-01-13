@@ -25,7 +25,7 @@ import java.util.Set;
  */
 
 public class ModulesMenuController extends AbstractController {
-//    private ModuleNames moduleName;
+    private String moduleName;
     private DatePicker fromDatePicker, toDatePicker;
     private TextField authorTextField;
     private Button moduleGenerateButton, moduleChangeRepositoryButton;
@@ -62,6 +62,14 @@ public class ModulesMenuController extends AbstractController {
         comboBox = new ComboBox(FXCollections.observableArrayList(analyzerModuleSet));
         comboBox.setVisibleRowCount(5);
         comboBox.getSelectionModel().selectFirst();
+        comboBox.setOnAction(x -> {
+        	moduleName = comboBox.getSelectionModel().getSelectedItem().toString();
+        	if (moduleName.equals("Authors Commits Analyzer")){
+                	System.out.println(moduleName);
+                	showAccurateFields(moduleName, modulesMenuBox);
+        	}
+        });
+        
 
 //        moduleName = Arrays.stream(ModuleNames.values())
 //                .filter(m -> Objects.equals(m.toString(), comboBox.getSelectionModel().getSelectedItem().toString()))
@@ -102,6 +110,8 @@ public class ModulesMenuController extends AbstractController {
             moduleController.setModule((AbstractAnalyzerModule) comboBox.getSelectionModel().getSelectedItem());
             moduleController.show();
         });
+        
+     
         moduleChangeRepositoryButton = getButton("Change Repository", 450, 55,
                 () -> injector.getInstance(OpenRepositoryController.class).show());
         authorTextField = new TextField();
@@ -114,9 +124,15 @@ public class ModulesMenuController extends AbstractController {
 
     private void showAccurateFields(VBox moduleBox){
         ObservableList<Node> children = moduleBox.getChildren();
+        children.removeAll(comboBox, fromDatePicker, toDatePicker, moduleGenerateButton, moduleChangeRepositoryButton);
+        children.addAll(comboBox, fromDatePicker, toDatePicker, moduleGenerateButton, moduleChangeRepositoryButton);  
+    }
+    
+    private void showAccurateFields(String moduleName, VBox moduleBox){
+        ObservableList<Node> children = moduleBox.getChildren();
         children.removeAll(comboBox, fromDatePicker, toDatePicker, committerName, moduleGenerateButton, moduleChangeRepositoryButton);
-        children.addAll(comboBox, fromDatePicker, toDatePicker, committerName, moduleGenerateButton, moduleChangeRepositoryButton);
-        //children.add(comboBox, fromDatePicker, toDatePicker, committerName, moduleGenerateButton, moduleChangeRepositoryButton);
+        children.addAll(fromDatePicker, toDatePicker, committerName, moduleGenerateButton, moduleChangeRepositoryButton);
+       // children.add(committerName);
         
     }
 }
