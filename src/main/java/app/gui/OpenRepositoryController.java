@@ -3,16 +3,13 @@ package app.gui;
 import app.fetch.Fetcher;
 import app.fetch.URLReader;
 import app.structures.CommitDetails;
-import app.structures.FileDiffs;
 import com.google.inject.Injector;
-import com.sun.xml.internal.ws.api.pipe.Fiber;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
-import org.joda.time.DateTime;
 
 import java.util.List;
 
@@ -45,13 +42,34 @@ public class OpenRepositoryController extends AbstractController {
         TextField repoPathTextField = new TextField();
         repoPathTextField.setPrefHeight(40);
         Button openRepositoryButton = getButton("Open repository", 350, 55, () -> {
-                    if (URLReader.checkIfExistsRemote(repoPathTextField.getText())) {
-                        Fetcher fetcher = injector.getInstance(Fetcher.class);
-                        fetcher.prepareDownloader(repoPathTextField.getText());
-                        injector.getInstance(ModulesMenuController.class).show();
-                        repoPathTextField.clear();
-                    } else {
-                        repoPathTextField.setStyle("-fx-border-color: red");
+
+                    try {
+                        if (URLReader.checkIfExistsRemote(repoPathTextField.getText())) {
+
+                            Fetcher fetcher = injector.getInstance(Fetcher.class);
+                            fetcher.prepareDownloader(repoPathTextField.getText());
+
+                            //test
+                            List<CommitDetails> commitDetails = fetcher.getAllCommits();
+                            for (CommitDetails co : commitDetails){
+                               // System.out.println(co.getCommitDate());
+                                System.out.println(co.getCommitMessage());
+                            }
+                            //-------------------
+
+                            injector.getInstance(ModulesMenuController.class).show();
+                            repoPathTextField.clear();
+                        } else {
+                            repoPathTextField.setStyle("-fx-border-color: red");
+                            DialogController exController = injector.getInstance(DialogController.class);
+                            exController.createWarningDialog("Incorrect repository url or repository doesn't exist. ");
+                            repoPathTextField.setStyle("-fx-border-color: black");
+
+                        }
+                    } catch (Exception e) {
+                        DialogController exController = injector.getInstance(DialogController.class);
+                        exController.createExceptionDialog(e);
+
                     }
                 }
         );

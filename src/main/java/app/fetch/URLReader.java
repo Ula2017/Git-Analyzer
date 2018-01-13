@@ -2,12 +2,13 @@ package app.fetch;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
 public class URLReader {
 
-    public static boolean checkIfExistsRemote(String repoUrl){
+    public static boolean checkIfExistsRemote(String repoUrl) throws Exception {
         boolean result;
         InputStream ins = null;
         try {
@@ -15,8 +16,11 @@ public class URLReader {
             ins = conn.getInputStream();
             result = true;
         }
-        catch (Exception e) {
+        catch(MalformedURLException e ){
             result = false;
+        }
+        catch (IOException e) {
+            throw new Exception("Connection problem");
         }
         finally {
             try {

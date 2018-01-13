@@ -1,47 +1,32 @@
-
 package app.fetch;
 
+import com.google.common.io.Files;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.api.errors.JGitInternalException;
 import java.io.File;
 
 
 public class GitDownloader implements RepoDownloader {
+
     public GitDownloader(){}
 
     @Override
-    public Git getRepository(String repoUrl) {
-        Git git =null;
-        File file = new File("C:\\localRepo");
-        if(file.exists())
-            delete(file);
+    public Git getRepository(String repoUrl) throws Exception {
+        Git git;
+        File file = Files.createTempDir();
 
         try{
             git=Git.cloneRepository()
                     .setURI(repoUrl)
-                    .setDirectory(new File("C:\\localRepo"))
+                    .setDirectory(file)
                     .call();
+            git.getRepository().close();
+            git.close();
 
         }
-        catch (JGitInternalException e){ System.err.println("Already cloned"); }
         catch (GitAPIException e) {
-            System.err.println("Problem with cloning remote repository.");
-            System.exit(1);
+            throw new Exception("Problem with cloning remote repository.");
         }
-
         return git;
-    }
-
-    private void delete(File file){
-        for (File childFile : file.listFiles()) {
-            if (childFile.isDirectory())
-                delete(childFile);
-
-            childFile.delete();
-        }
-
-        if (!file.delete())
-            System.err.println("Problem with deleting directory");
     }
 }

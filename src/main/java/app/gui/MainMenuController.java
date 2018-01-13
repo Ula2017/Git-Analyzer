@@ -36,7 +36,7 @@ public class MainMenuController extends AbstractController {
             getButton("Contact", 350, 55,
                     () -> injector.getInstance(ContactController.class).show()),
             getButton("Exit", 350, 55,
-                    () -> injector.getInstance(ExitController.class).show())
+                    () -> injector.getInstance(DialogController.class).createExitDialog())
         );
 
         return new Scene(mainMenuGrid, primaryStage.getWidth(), primaryStage.getHeight());

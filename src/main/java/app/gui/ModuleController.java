@@ -60,7 +60,10 @@ public class ModuleController extends AbstractController {
 
         try {
             imageView.setImage(new Image(module.generateFile(fetcher.getCommitsFromDateRange(from, to), new GUIDetails(from, to, committerName)).toURI().toURL().toString()));
-        } catch (Exception e) {e.printStackTrace();}
+        } catch (Exception e) {
+            DialogController exController = injector.getInstance(DialogController.class);
+            exController.createExceptionDialog(e);
+        }
 
         return new Scene(moduleGrid, primaryStage.getWidth(), primaryStage.getHeight());
     }
