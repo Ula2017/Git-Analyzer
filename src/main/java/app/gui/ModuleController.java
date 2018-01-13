@@ -16,12 +16,15 @@ public class ModuleController extends AbstractController {
     private AbstractAnalyzerModule module;
     private DateTime from;
     private DateTime to;
+    private String committerName;
+    
 
     public ModuleController() {}
 
     public void setGUIDetails(GUIDetails guiDetails){
         this.from = guiDetails.getFrom();
         this.to = guiDetails.getTo();
+        this.committerName = guiDetails.getCommitterName();
     }
 
     public void setModule(AbstractAnalyzerModule module){
@@ -56,7 +59,7 @@ public class ModuleController extends AbstractController {
         );
 
         try {
-            imageView.setImage(new Image(module.generateFile(fetcher.getCommitsFromDateRange(from, to), new GUIDetails(from, to)).toURI().toURL().toString()));
+            imageView.setImage(new Image(module.generateFile(fetcher.getCommitsFromDateRange(from, to), new GUIDetails(from, to, committerName)).toURI().toURL().toString()));
         } catch (Exception e) {e.printStackTrace();}
 
         return new Scene(moduleGrid, primaryStage.getWidth(), primaryStage.getHeight());

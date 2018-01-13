@@ -29,6 +29,7 @@ public class ModulesMenuController extends AbstractController {
     private DatePicker fromDatePicker, toDatePicker;
     private TextField authorTextField;
     private Button moduleGenerateButton, moduleChangeRepositoryButton;
+    private TextField  committerName;
     private ComboBox comboBox;
     private Set<AbstractAnalyzerModule> analyzerModuleSet;
 
@@ -55,9 +56,9 @@ public class ModulesMenuController extends AbstractController {
         modulesMenuBox.setStyle("-fx-font: 40 Tahoma");
         modulesMenuGrid.add(modulesMenuBox, 0,0);
 
-//        Analyzer analyzer = new Analyzer();
-//        comboBox = new ComboBox(FXCollections.observableArrayList(analyzer.getModulesNames()));
-//
+   //     Analyzer analyzer = new Analyzer();
+   //     comboBox = new ComboBox(FXCollections.observableArrayList(analyzer.getModulesNames()));
+
         comboBox = new ComboBox(FXCollections.observableArrayList(analyzerModuleSet));
         comboBox.setVisibleRowCount(5);
         comboBox.getSelectionModel().selectFirst();
@@ -84,19 +85,27 @@ public class ModulesMenuController extends AbstractController {
             LocalDate date = toDatePicker.getValue();
             toDatePicker.setValue(LocalDate.of(date.getYear(), date.getMonth(), date.lengthOfMonth()));
         });
+        
+        committerName = new TextField();
+        committerName.setOnAction(t -> {
+        	committerName.getText();
+        });
         moduleGenerateButton = getButton("Generate", 450, 55, () -> {
             LocalDate fromDate = fromDatePicker.getValue();
             LocalDate toDate = toDatePicker.getValue();
             ModuleController moduleController = injector.getInstance(ModuleController.class);
             moduleController.setGUIDetails(new GUIDetails(
                     new DateTime(fromDate.getYear(), fromDate.getMonthValue(), fromDate.getDayOfMonth(), 0, 0),
-                    new DateTime(toDate.getYear(), toDate.getMonthValue(), toDate.getDayOfMonth(), 0, 0)
+                    new DateTime(toDate.getYear(), toDate.getMonthValue(), toDate.getDayOfMonth(), 0, 0),
+                    committerName.getText()
             ));
             moduleController.setModule((AbstractAnalyzerModule) comboBox.getSelectionModel().getSelectedItem());
             moduleController.show();
         });
         moduleChangeRepositoryButton = getButton("Change Repository", 450, 55,
                 () -> injector.getInstance(OpenRepositoryController.class).show());
+        authorTextField = new TextField();
+        authorTextField.setPrefHeight(40);
 
         showAccurateFields(modulesMenuBox);
 
@@ -105,8 +114,9 @@ public class ModulesMenuController extends AbstractController {
 
     private void showAccurateFields(VBox moduleBox){
         ObservableList<Node> children = moduleBox.getChildren();
-        children.removeAll(comboBox, fromDatePicker, toDatePicker, authorTextField, moduleGenerateButton, moduleChangeRepositoryButton);
-        children.addAll(comboBox, fromDatePicker, toDatePicker, moduleGenerateButton, moduleChangeRepositoryButton);
-        //children.add(authorTextField); //module3
+        children.removeAll(comboBox, fromDatePicker, toDatePicker, committerName, moduleGenerateButton, moduleChangeRepositoryButton);
+        children.addAll(comboBox, fromDatePicker, toDatePicker, committerName, moduleGenerateButton, moduleChangeRepositoryButton);
+        //children.add(comboBox, fromDatePicker, toDatePicker, committerName, moduleGenerateButton, moduleChangeRepositoryButton);
+        
     }
 }

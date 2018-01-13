@@ -5,6 +5,7 @@ import app.analysis.MonthlyAmmountOfCommitersModule;
 import app.analysis.ProgrammingLanguagesPercentageModule;
 import app.analysis.ClassificationModule;
 import app.analysis.RepoCommitsModule;
+import app.analysis.AuthorsCommitsAnalyzerModule;
 import app.fetch.GitDownloader;
 import app.fetch.RepoDownloader;
 import com.google.inject.AbstractModule;
@@ -18,6 +19,7 @@ public class iOCModule extends AbstractModule {
         analyzerModuleMultibinder.addBinding().to(ProgrammingLanguagesPercentageModule.class);
         analyzerModuleMultibinder.addBinding().to(RepoCommitsModule.class);
         analyzerModuleMultibinder.addBinding().to(ClassificationModule.class);
+        analyzerModuleMultibinder.addBinding().to(AuthorsCommitsAnalyzerModule.class);
         bind(RepoDownloader.class).to(GitDownloader.class);
 
     }
