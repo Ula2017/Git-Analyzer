@@ -1,8 +1,9 @@
 package app.gui;
 
 import app.analysis.AbstractAnalyzerModule;
-import app.fetch.Fetcher;
+import app.analysis.AnalysisFactory;
 import app.structures.GUIDetails;
+import com.google.inject.Inject;
 import com.google.inject.Injector;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -17,9 +18,12 @@ public class ModuleController extends AbstractController {
     private DateTime from;
     private DateTime to;
     private String committerName;
+    private AnalysisFactory analysisFactory;
     
-
-    public ModuleController() {}
+    @Inject
+    public ModuleController(AnalysisFactory analysisFactory) {
+        this.analysisFactory = analysisFactory;
+    }
 
     public void setGUIDetails(GUIDetails guiDetails){
         this.from = guiDetails.getFrom();
@@ -39,8 +43,6 @@ public class ModuleController extends AbstractController {
     @Override
     Scene createScene() {
         Injector injector = AbstractController.injector;
-        Fetcher fetcher = injector.getInstance(Fetcher.class);
-
         GridPane moduleGrid = getAbstractGrid();
 
         VBox moduleBox = new VBox(50);
@@ -59,7 +61,7 @@ public class ModuleController extends AbstractController {
         );
 
         try {
-            imageView.setImage(new Image(module.generateFile(fetcher.getCommitsFromDateRange(from, to), new GUIDetails(from, to, committerName)).toURI().toURL().toString()));
+            imageView.setImage(new Image(analysisFactory.generateFile(module, from, to, committerName).toURI().toURL().toString()));
         } catch (Exception e) {
             DialogController exController = injector.getInstance(DialogController.class);
             exController.createExceptionDialog(e);
