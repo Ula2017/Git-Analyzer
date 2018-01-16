@@ -34,7 +34,7 @@ public class ProgrammingLanguagesPercentageModule extends AbstractAnalyzerModule
         String outputPath = getPathForOutput();
 
         JFreeChart chart = ChartFactory.createPieChart("Lines of code", // chart title
-                createDataset(getLinesForLanguages(commitDetails)),
+                createDataset(commitDetails),
                 true,
                 true,
                 false);
@@ -50,7 +50,8 @@ public class ProgrammingLanguagesPercentageModule extends AbstractAnalyzerModule
         return outputFile;
     }
 
-	private DefaultPieDataset createDataset(Map<String, Integer> languages) throws Exception {
+	public DefaultPieDataset createDataset(List<CommitDetails> commitDetails) throws Exception {
+        Map<String, Integer> languages = getLinesForLanguages(commitDetails);
 		DefaultPieDataset dataset = new DefaultPieDataset();
         languages.keySet().forEach(key -> {
             int value = languages.get(key);

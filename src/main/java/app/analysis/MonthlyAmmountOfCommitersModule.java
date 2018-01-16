@@ -30,7 +30,7 @@ public class MonthlyAmmountOfCommitersModule extends AbstractAnalyzerModule {
 
     private File createFileWithChart(List<CommitDetails> commitDetails, DateTime from, DateTime to) throws Exception {
         List<String> symbolAxis = new LinkedList<>();
-        XYSeriesCollection dataset = createDataset(countAuthors(commitDetails, from, to, symbolAxis));
+        XYSeriesCollection dataset = createDataset(commitDetails, from, to, symbolAxis);
 
         SymbolAxis sa = new SymbolAxis("AxisLabel", symbolAxis.toArray(new String[0]));
 
@@ -49,7 +49,8 @@ public class MonthlyAmmountOfCommitersModule extends AbstractAnalyzerModule {
         return outputFile;
     }
 
-    private XYSeriesCollection createDataset(List<Integer> authors){
+    public XYSeriesCollection createDataset(List<CommitDetails> commitDetails, DateTime from, DateTime to, List<String> symbolAxis){
+        List<Integer> authors = countAuthors(commitDetails, from, to, symbolAxis);
         XYSeries series = new XYSeries("Number of authors");
         for(int i = 0;i < authors.size(); i++)
             series.add(i, authors.get(i));

@@ -34,32 +34,41 @@ public class ClassificationModule extends AbstractAnalyzerModule {
 		String outputPath = getPathForOutput();
 		File outputFile = new File(outputPath);
 
-		Map<String, Integer> commits = countCommits(commitDetails, from, to);
-		Map<String, Integer> insertions = countInsertions(commitDetails, from, to);
-		Map<String, Integer> deletions = countDeletions(commitDetails, from, to);
-
-        BufferedImage bi = createImageFromText(commits, insertions, deletions);
+        BufferedImage bi = createImageFromText(createDataSet(commitDetails, from, to));
         ImageIO.write(bi, "png", outputFile);
 
 		return outputFile;
 	}
 
-    private static BufferedImage createImageFromText(Map<String, Integer> commits, Map<String, Integer> insertions, Map<String, Integer> deletions){
+    public List<String> createDataSet(List<CommitDetails> commitDetails, DateTime from, DateTime to) throws IOException {
+        Map<String, Integer> commits = countCommits(commitDetails, from, to);
+        Map<String, Integer> insertions = countInsertions(commitDetails, from, to);
+        Map<String, Integer> deletions = countDeletions(commitDetails, from, to);
+
+        List<String> dataSet = new ArrayList<>();
+
+        AtomicInteger i = new AtomicInteger(1);
+        dataSet.add("Rank of commits");
+        commits.entrySet().stream().sorted(reverseOrder(Map.Entry.comparingByValue())).forEach(c -> dataSet.add(String.format("%d. %s %d", i.getAndIncrement(), c.getKey(), c.getValue())));
+        i.set(1);
+        dataSet.add("Rank of insertions");
+        insertions.entrySet().stream().sorted(reverseOrder(Map.Entry.comparingByValue())).forEach(c -> dataSet.add(String.format("%d. %s %d", i.getAndIncrement(), c.getKey(), c.getValue())));
+        i.set(1);
+        dataSet.add("Rank of deletions");
+        deletions.entrySet().stream().sorted(reverseOrder(Map.Entry.comparingByValue())).forEach(c -> dataSet.add(String.format("%d. %s %d", i.getAndIncrement(), c.getKey(), c.getValue())));
+
+        return dataSet;
+    }
+
+    private static BufferedImage createImageFromText(List<String> dataSet){
         BufferedImage bufferedImage = new BufferedImage(600, 400, BufferedImage.TYPE_INT_RGB);
         Graphics g = bufferedImage.getGraphics();
         final int vertPadding = 25;
         final int horPadding = 100;
         g.setFont(new Font("Arial", Font.PLAIN, vertPadding - 5));
 
-        AtomicInteger start = new AtomicInteger(30), i = new AtomicInteger(1);
-        g.drawString("Rank of commits", horPadding, start.get());
-        commits.entrySet().stream().sorted(reverseOrder(Map.Entry.comparingByValue())).forEach(c -> g.drawString(String.format("%d. %s %d", i.get(), c.getKey(), c.getValue()), horPadding, start.get() + i.getAndIncrement()*vertPadding));
-        i.set(1);
-        g.drawString("Rank of insertions", horPadding, start.addAndGet((commits.size() + 1) * vertPadding + 10));
-        insertions.entrySet().stream().sorted(reverseOrder(Map.Entry.comparingByValue())).forEach(c -> g.drawString(String.format("%d. %s %d", i.get(), c.getKey(), c.getValue()), horPadding, start.get() + i.getAndIncrement()*vertPadding));
-        i.set(1);
-        g.drawString("Rank of deletions", horPadding, start.addAndGet((insertions.size() + 1) * vertPadding + 10));
-        commits.entrySet().stream().sorted(reverseOrder(Map.Entry.comparingByValue())).forEach(c -> g.drawString(String.format("%d. %s %d", i.get(), c.getKey(), c.getValue()), horPadding, start.get() + i.getAndIncrement()*vertPadding));
+        AtomicInteger start = new AtomicInteger(30);
+        dataSet.forEach(s -> g.drawString(s, horPadding, start.getAndAdd(vertPadding)));
 
         return bufferedImage;
     }
