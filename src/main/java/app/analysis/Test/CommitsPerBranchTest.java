@@ -1,6 +1,7 @@
 package app.analysis.Test;
 
 import app.analysis.CommitsPerBranchModule;
+import app.analysis.CreateImageException;
 import app.structures.CommitDetails;
 import org.joda.time.DateTime;
 import org.junit.After;
@@ -14,12 +15,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 /**
  * Created by Karol on 2018-01-17.
  */
 
 @RunWith(MockitoJUnitRunner.class)
-public class CommitsPerBranchTest {
+public class CommitsPerBranchTest extends AbstractTest{
     private CommitsPerBranchModule cpbm;
     private List<CommitDetails> commitDetails;
 
@@ -27,6 +31,17 @@ public class CommitsPerBranchTest {
     public void setUp(){
         cpbm = new CommitsPerBranchModule();
         commitDetails = new ArrayList<>();
+    }
+
+    @Test
+    public void createFileWithTableShouldThrowExceptionWhenWrongPath(){
+        try {
+            cpbm.createFileWithTable(commitDetails, new DateTime().withYear(2017).withMonthOfYear(11).withDayOfMonth(1),
+                    new DateTime().withYear(2018).withMonthOfYear(1).withDayOfMonth(1), "someStupidPath\\whichDoesNotExist\\file.jpg");
+            fail("Expected an CreateImageException to be thrown");
+        } catch (CreateImageException e) {
+            assertTrue(Objects.equals(e.getMessage(), "Output path for image is not correct"));
+        }
     }
 
     @Test

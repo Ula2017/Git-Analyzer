@@ -9,7 +9,7 @@ import java.util.List;
 public abstract class AbstractAnalyzerModule {
     protected int height = 480;
     protected int width = 640;
-    public abstract File generateFile(List<CommitDetails> commitDetails, GUIDetails guiDetails) throws Exception;
+    public abstract File generateFile(List<CommitDetails> commitDetails, GUIDetails guiDetails) throws CreateImageException;
     protected String getPathForOutput() {
         if(!new File("images").exists())
             new File("images").mkdir();

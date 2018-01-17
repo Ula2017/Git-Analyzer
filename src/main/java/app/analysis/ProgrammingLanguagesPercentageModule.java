@@ -8,6 +8,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.data.general.DefaultPieDataset;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -26,13 +27,11 @@ public class ProgrammingLanguagesPercentageModule extends AbstractAnalyzerModule
 	}
 
 	@Override
-	public File generateFile(List<CommitDetails> commitDetails, GUIDetails guiDetails) throws Exception {
-		return createFileWithChart(commitDetails);
+	public File generateFile(List<CommitDetails> commitDetails, GUIDetails guiDetails) throws CreateImageException {
+		return createFileWithChart(commitDetails, getPathForOutput());
 	}
 
-    private File createFileWithChart(List<CommitDetails> commitDetails) throws Exception {
-        String outputPath = getPathForOutput();
-
+    public File createFileWithChart(List<CommitDetails> commitDetails, String outputPath) throws CreateImageException {
         JFreeChart chart = ChartFactory.createPieChart("Lines of code", // chart title
                 createDataset(commitDetails),
                 true,
@@ -43,14 +42,17 @@ public class ProgrammingLanguagesPercentageModule extends AbstractAnalyzerModule
         try {
             ChartUtilities.saveChartAsJPEG(outputFile, chart, width, height);
         }
-        catch (Exception e) {
-            throw new Exception("Problem occurred creating chart.");
+        catch (NullPointerException e){
+            throw new CreateImageException("Output path for image is not correct");
+        }
+        catch (IOException e) {
+            throw new CreateImageException("Problem creating image with chart for ProgrammingLanguagesPercentageModule");
         }
 
         return outputFile;
     }
 
-	public DefaultPieDataset createDataset(List<CommitDetails> commitDetails) throws Exception {
+	public DefaultPieDataset createDataset(List<CommitDetails> commitDetails) {
         Map<String, Integer> languages = getLinesForLanguages(commitDetails);
 		DefaultPieDataset dataset = new DefaultPieDataset();
         languages.keySet().forEach(key -> {

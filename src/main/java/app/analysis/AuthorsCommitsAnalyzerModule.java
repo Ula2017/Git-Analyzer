@@ -30,7 +30,7 @@ public class AuthorsCommitsAnalyzerModule extends AbstractAnalyzerModule {
     }
     
 	@Override
-	public File generateFile(List<CommitDetails> commitDetails, GUIDetails guiDetails) throws Exception {
+	public File generateFile(List<CommitDetails> commitDetails, GUIDetails guiDetails) throws CreateImageException {
 		return createFileWithChart(commitDetails, guiDetails.getFrom(), guiDetails.getTo(), guiDetails.getCommitterName());
 	}
 
@@ -73,7 +73,7 @@ public class AuthorsCommitsAnalyzerModule extends AbstractAnalyzerModule {
     }
     
     
-	private File createFileWithChart(List<CommitDetails> commitDetails, DateTime from, DateTime to, String committerName) throws Exception {
+	private File createFileWithChart(List<CommitDetails> commitDetails, DateTime from, DateTime to, String committerName) throws CreateImageException {
 		String outputPath = getPathForOutput();
         int width = 640;
         int height = 480;

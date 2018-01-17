@@ -11,6 +11,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.joda.time.DateTime;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -24,11 +25,11 @@ public class MonthlyAmmountOfCommitersModule extends AbstractAnalyzerModule {
     }
 
     @Override
-    public File generateFile(List<CommitDetails> commitDetails, GUIDetails guiDetails) throws Exception {
-        return createFileWithChart(commitDetails, guiDetails.getFrom(), guiDetails.getTo());
+    public File generateFile(List<CommitDetails> commitDetails, GUIDetails guiDetails) throws CreateImageException {
+        return createFileWithChart(commitDetails, guiDetails.getFrom(), guiDetails.getTo(), getPathForOutput());
     }
 
-    private File createFileWithChart(List<CommitDetails> commitDetails, DateTime from, DateTime to) throws Exception {
+    public File createFileWithChart(List<CommitDetails> commitDetails, DateTime from, DateTime to, String outputPath) throws CreateImageException {
         List<String> symbolAxis = new LinkedList<>();
         XYSeriesCollection dataset = createDataset(commitDetails, from, to, symbolAxis);
 
@@ -40,11 +41,16 @@ public class MonthlyAmmountOfCommitersModule extends AbstractAnalyzerModule {
                 dataset);
         chart.getXYPlot().setDomainAxis(sa);
 
-        File outputFile = new File(getPathForOutput());
+        File outputFile = new File(outputPath);
         try {
             ChartUtilities.saveChartAsJPEG(outputFile, chart, width, height);
         }
-        catch (Exception e) { throw new Exception("Problem occurred creating chart."); }
+        catch (NullPointerException e){
+            throw new CreateImageException("Output path for image is not correct");
+        }
+        catch (IOException e) {
+            throw new CreateImageException("Problem creating image with chart for MonthlyAmmountOfCommitersModule");
+        }
 
         return outputFile;
     }
@@ -60,7 +66,7 @@ public class MonthlyAmmountOfCommitersModule extends AbstractAnalyzerModule {
         return dataset;
     }
 
-    /*private*/public List<Integer> countAuthors(List<CommitDetails> commitDetails, DateTime from, DateTime to, List<String> symbolAxis){
+    public List<Integer> countAuthors(List<CommitDetails> commitDetails, DateTime from, DateTime to, List<String> symbolAxis){
         List<Integer> res = new ArrayList<>();
         for(int year = from.getYear(); year <= to.getYear(); year++){
             for(int month = year != from.getYear() ? 1 : from.getMonthOfYear();

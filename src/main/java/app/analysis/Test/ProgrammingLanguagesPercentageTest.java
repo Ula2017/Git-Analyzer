@@ -1,5 +1,6 @@
 package app.analysis.Test;
 
+import app.analysis.CreateImageException;
 import app.analysis.ProgrammingLanguagesPercentageModule;
 import app.structures.CommitDetails;
 import app.structures.FileDiffs;
@@ -13,12 +14,15 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.*;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 /**
  * Created by Karol on 2018-01-16.
  */
 
 @RunWith(MockitoJUnitRunner.class)
-public class ProgrammingLanguagesPercentageTest {
+public class ProgrammingLanguagesPercentageTest extends AbstractTest {
     private ProgrammingLanguagesPercentageModule plpm;
     private List<CommitDetails> commitDetails;
 
@@ -26,6 +30,16 @@ public class ProgrammingLanguagesPercentageTest {
     public void setUp(){
         plpm = new ProgrammingLanguagesPercentageModule();
         commitDetails = new ArrayList<>();
+    }
+
+    @Test
+    public void createFileWithChartShouldThrowExceptionWhenWrongPath(){
+        try {
+            plpm.createFileWithChart(commitDetails, "someStupidPath\\whichDoesNotExist\\file.jpg");
+            fail("Expected an CreateImageException to be thrown");
+        } catch (CreateImageException e) {
+            assertTrue(Objects.equals(e.getMessage(), "Problem creating image with chart for ProgrammingLanguagesPercentageModule"));
+        }
     }
 
     @Test

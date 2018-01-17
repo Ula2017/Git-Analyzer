@@ -26,21 +26,29 @@ public class ClassificationModule extends AbstractAnalyzerModule {
 	}
 
 	@Override
-	public File generateFile(List<CommitDetails> commitDetails, GUIDetails guiDetails) throws Exception {
-		return createFileWithTable(commitDetails, guiDetails.getFrom(), guiDetails.getTo());
+	public File generateFile(List<CommitDetails> commitDetails, GUIDetails guiDetails) throws CreateImageException {
+		return createFileWithTable(commitDetails, guiDetails.getFrom(), guiDetails.getTo(), getPathForOutput());
 	}
 
-	private File createFileWithTable(List<CommitDetails> commitDetails, DateTime from, DateTime to) throws IOException{
-		String outputPath = getPathForOutput();
-		File outputFile = new File(outputPath);
+	public File createFileWithTable(List<CommitDetails> commitDetails, DateTime from, DateTime to, String outputPath) throws CreateImageException {
+        File outputFile;
+        try {
+            outputFile = new File(outputPath);
 
-        BufferedImage bi = createImageFromText(createDataSet(commitDetails, from, to));
-        ImageIO.write(bi, "png", outputFile);
+            BufferedImage bi = createImageFromText(createDataSet(commitDetails, from, to));
+            ImageIO.write(bi, "png", outputFile);
+        }
+        catch (NullPointerException e){
+            throw new CreateImageException("Output path for image is not correct");
+        }
+        catch (IOException e) {
+            throw new CreateImageException("Problem creating image with table for ClassificationModule");
+        }
 
-		return outputFile;
+        return outputFile;
 	}
 
-    public List<String> createDataSet(List<CommitDetails> commitDetails, DateTime from, DateTime to) throws IOException {
+    public List<String> createDataSet(List<CommitDetails> commitDetails, DateTime from, DateTime to) {
         Map<String, Integer> commits = countCommits(commitDetails, from, to);
         Map<String, Integer> insertions = countInsertions(commitDetails, from, to);
         Map<String, Integer> deletions = countDeletions(commitDetails, from, to);
@@ -60,7 +68,7 @@ public class ClassificationModule extends AbstractAnalyzerModule {
         return dataSet;
     }
 
-    private static BufferedImage createImageFromText(List<String> dataSet){
+    private BufferedImage createImageFromText(List<String> dataSet){
         BufferedImage bufferedImage = new BufferedImage(600, 400, BufferedImage.TYPE_INT_RGB);
         Graphics g = bufferedImage.getGraphics();
         final int vertPadding = 25;
@@ -73,7 +81,7 @@ public class ClassificationModule extends AbstractAnalyzerModule {
         return bufferedImage;
     }
 
-	public Map<String, Integer> countCommits(List<CommitDetails> commitDetails, DateTime from, DateTime to) throws IOException {
+	public Map<String, Integer> countCommits(List<CommitDetails> commitDetails, DateTime from, DateTime to) {
         Map<String, Integer> commits = new HashMap<>();
 
         getAuthors(commitDetails, from, to)
@@ -99,24 +107,17 @@ public class ClassificationModule extends AbstractAnalyzerModule {
 	}
 
 	public Map<String, Integer> countDeletions(List<CommitDetails> commitDetails, DateTime from, DateTime to) {
-        try {
-            Map<String, Integer> deletions = new HashMap<>();
+        Map<String, Integer> deletions = new HashMap<>();
 
-            getAuthors(commitDetails, from, to)
-                    .forEach(a -> deletions.put(a,
-                            getAuthorsCommits(commitDetails, a, from, to).stream()
-                                    .mapToInt(cd -> cd.getFiles().stream()
-                                            .mapToInt(FileDiffs::getDeletions).sum()).sum()));
+        getAuthors(commitDetails, from, to)
+                .forEach(a -> deletions.put(a,
+                        getAuthorsCommits(commitDetails, a, from, to).stream()
+                                .mapToInt(cd -> cd.getFiles().stream()
+                                        .mapToInt(FileDiffs::getDeletions).sum()).sum()));
 
-            Map<String, Integer> x= deletions.entrySet().stream()
-                    .limit(LIMIT)
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-            return x;
-        }
-        catch(Exception e){
-            e = e;
-            return null;
-        }
+        return deletions.entrySet().stream()
+                .limit(LIMIT)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 	}
 
 	private List<CommitDetails> getAuthorsCommits(List<CommitDetails> commitDetails, String name, DateTime from, DateTime to) {

@@ -1,5 +1,6 @@
 package app.analysis.Test;
 
+import app.analysis.CreateImageException;
 import app.analysis.MonthlyAmmountOfCommitersModule;
 import app.structures.CommitDetails;
 import org.jfree.data.xy.XYSeries;
@@ -16,12 +17,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 /**
  * Created by Karol on 2018-01-16.
  */
 
 @RunWith(MockitoJUnitRunner.class)
-public class MonthlyAmmountOfCommitersTest {
+public class MonthlyAmmountOfCommitersTest extends AbstractTest {
     private MonthlyAmmountOfCommitersModule maocm;
     private List<CommitDetails> commitDetails;
 
@@ -29,6 +33,17 @@ public class MonthlyAmmountOfCommitersTest {
     public void setUp(){
         maocm = new MonthlyAmmountOfCommitersModule();
         commitDetails = new ArrayList<>();
+    }
+
+    @Test
+    public void createFileWithChartShouldThrowExceptionWhenWrongPath(){
+        try {
+            maocm.createFileWithChart(commitDetails, new DateTime().withYear(2017).withMonthOfYear(11).withDayOfMonth(1),
+                    new DateTime().withYear(2018).withMonthOfYear(1).withDayOfMonth(1), "someStupidPath\\whichDoesNotExist\\file.jpg");
+            fail("Expected an CreateImageException to be thrown");
+        } catch (CreateImageException e) {
+            assertTrue(Objects.equals(e.getMessage(), "Problem creating image with chart for MonthlyAmmountOfCommitersModule"));
+        }
     }
 
     @Test

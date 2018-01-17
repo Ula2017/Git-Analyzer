@@ -1,7 +1,6 @@
 package app.analysis;
 
 import app.fetch.Fetcher;
-import app.structures.CommitDetails;
 import app.structures.GUIDetails;
 import com.google.inject.Inject;
 import org.joda.time.DateTime;
@@ -21,6 +20,7 @@ public class AnalysisFactory {
         this.fetcher = fetcher;
     }
 
+    //mock fetchera
     public File generateFile(AbstractAnalyzerModule module, DateTime from, DateTime to, String committerName) throws Exception {
         return module.generateFile(fetcher.getCommitsFromDateRange(from, to).stream()
                         .filter(cd -> (committerName == null || committerName.isEmpty()) ||

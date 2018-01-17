@@ -26,7 +26,7 @@ public class RepoCommitsModule extends AbstractAnalyzerModule {
 	}
    
     @Override
-    public File generateFile(List<CommitDetails> commitDetails, GUIDetails guiDetails) throws Exception {
+    public File generateFile(List<CommitDetails> commitDetails, GUIDetails guiDetails) throws CreateImageException {
         return createDiagram(commitDetails, guiDetails.getFrom(), guiDetails.getTo());
     }
        

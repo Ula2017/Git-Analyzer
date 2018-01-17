@@ -23,21 +23,29 @@ public class CommitsPerBranchModule extends AbstractAnalyzerModule {
     }
 
     @Override
-    public File generateFile(List<CommitDetails> commitDetails, GUIDetails guiDetails) throws Exception {
-        return createFileWithTable(commitDetails, guiDetails.getFrom(), guiDetails.getTo());
+    public File generateFile(List<CommitDetails> commitDetails, GUIDetails guiDetails) throws CreateImageException {
+        return createFileWithTable(commitDetails, guiDetails.getFrom(), guiDetails.getTo(), getPathForOutput());
     }
 
-    private File createFileWithTable(List<CommitDetails> commitDetails, DateTime from, DateTime to) throws IOException{
-        String outputPath = getPathForOutput();
-        File outputFile = new File(outputPath);
+    public File createFileWithTable(List<CommitDetails> commitDetails, DateTime from, DateTime to, String outputPath) throws CreateImageException {
+        File outputFile;
+        try {
+            outputFile = new File(outputPath);
 
-        BufferedImage bi = createImageFromText(createDataSet(commitDetails, from, to));
-        ImageIO.write(bi, "png", outputFile);
+            BufferedImage bi = createImageFromText(createDataSet(commitDetails, from, to));
+            ImageIO.write(bi, "png", outputFile);
+        }
+        catch (NullPointerException e){
+            throw new CreateImageException("Output path for image is not correct");
+        }
+        catch (IOException e) {
+            throw new CreateImageException("Problem creating image with table for CommitsPerBranchModule");
+        }
 
         return outputFile;
     }
 
-    public List<String> createDataSet(List<CommitDetails> commitDetails, DateTime from, DateTime to) throws IOException {
+    public List<String> createDataSet(List<CommitDetails> commitDetails, DateTime from, DateTime to) {
         Map<String, Integer> commits = getCommitsPerBranch(commitDetails, from, to);
         List<String> dataSet = new ArrayList<>();
 
