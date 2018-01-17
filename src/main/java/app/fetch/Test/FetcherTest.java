@@ -39,10 +39,10 @@ public class FetcherTest {
 
     @Test(expected = Exception.class)
     public void getBranchCommit() throws Exception {
-       // Mockito.when(f.getBranchCommit()).
-       // Mockito.when(git.branchList().call()).thenThrow(
-       //         new Exception("Problem occured getting amount of commit per branch. "));
-        //assertEquals(f.getBranchCommit(), "Problem occured getting amount of commit per branch. ");
+//        Mockito.when(f.getBranchCommit()).
+//        Mockito.when(git.branchList().call()).thenThrow(
+//                new Exception("Problem occured getting amount of commit per branch. "));
+//        assertEquals(f.getBranchCommit(), "Problem occured getting amount of commit per branch. ");
 //        Mockito.when(git.log()).thenThrow(
 //                new Exception("Problem occured getting amount of commit per branch. "));
 //        assertEquals(f.getAllCommits(), "Problem occured getting amount of commit per branch. ");

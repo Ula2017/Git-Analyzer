@@ -13,8 +13,6 @@ import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.Edit;
 import org.eclipse.jgit.diff.EditList;
-import org.eclipse.jgit.errors.IncorrectObjectTypeException;
-import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
@@ -27,7 +25,6 @@ import org.joda.time.DateTime;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +37,7 @@ public class Fetcher {
     private List<Git> git;
     private RepoDownloader gitDownloader;
     private List<CommitDetails> commitDetailsList;
+    Injector injector;
 
     @Inject
     public Fetcher(RepoDownloader repoDownloader) {
@@ -69,13 +67,13 @@ public class Fetcher {
     }
 //throws Exception
     private List<CommitDetails> generateCommitDetailList() throws Exception {
-
+        this.injector = AbstractController.injector;
         try {
             for (Git g : git) {
 
                     for (RevCommit rev : g.log().call()) {
                         System.out.println(rev.getShortMessage());
-                        Injector injector = AbstractController.injector;
+
 
                         CommitDetails commit = injector.getInstance(CommitDetails.class);
                         commit.setPrimaryInformation(new DateTime(rev.getAuthorIdent().getWhen()),
@@ -83,8 +81,8 @@ public class Fetcher {
                                 rev.getShortMessage(), g.getRepository().getBranch());
 
 
-                        addDiffsToCommit(rev, commit, injector,g);
-                        addLinesForAllFiles(rev, commit, injector, g);
+                        addDiffsToCommit(rev, commit,g);
+                        addLinesForAllFiles(rev, commit,g.getRepository());
 
                         this.commitDetailsList.add(commit);
                     }
@@ -98,9 +96,8 @@ public class Fetcher {
     }
 
 
-    private void addLinesForAllFiles(RevCommit rev, CommitDetails commit, Injector injector, Git g) throws Exception {
+    private void addLinesForAllFiles(RevCommit rev, CommitDetails commit, Repository repository) throws Exception {
 
-            Repository repository = g.getRepository();
             TreeWalk treeWalk = new TreeWalk(repository);
             try {
                 treeWalk.setRecursive(true);
@@ -144,7 +141,7 @@ public class Fetcher {
 
     }
 
-    private void addDiffsToCommit(RevCommit rev, CommitDetails commit, Injector injector, Git g) throws Exception {
+    private void addDiffsToCommit(RevCommit rev, CommitDetails commit, Git g) throws Exception {
         Repository repository = g.getRepository();
         if (rev.getParentCount() != 0) {
             List<DiffEntry> diffEntries = null;
@@ -202,6 +199,7 @@ public class Fetcher {
                 call = g.branchList().call();
                 for (Ref ref : call) {
                     int i = 0;
+
                     for (RevCommit commit : g.log().add(g.getRepository().resolve(ref.getName())).call()) {
                         i++;
                     }

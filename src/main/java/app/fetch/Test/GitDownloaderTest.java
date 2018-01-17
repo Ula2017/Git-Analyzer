@@ -32,27 +32,27 @@ public class GitDownloaderTest {
     public void setup() {
         gitDownloader = new GitDownloader();
     }
-///(expected = Exception.class)
-    @Test
+
+    @Test(expected = Exception.class)
     public void getRepository() throws Exception {
 
-//            Mockito.when(Git.cloneRepository()
-//                    .call()).thenReturn(git2);
-//
-//        assertEquals(gitDownloader.getRepository("someUrl"), git);
+            Mockito.when(Git.cloneRepository()
+                    .call()).thenReturn(git);
+
+        assertEquals(gitDownloader.getRepository("someUrl"), git);
 
 
 
-//
-//        Mockito.when(gitDownloader.getRepository("someUrl")).thenThrow(
-//                new Exception("Problem with cloning remote repository."));
-//        assertEquals(gitDownloader.getRepository("someUrl"),
-//                "Problem with cloning remote repository.");
-//
-//        Mockito.when(file.delete()).thenThrow(
-//                new Exception("Problem with deleting directory"));
-//        assertEquals(gitDownloader.getRepository("mam"),
-//                "Problem with deleting directory");
+
+        Mockito.when(gitDownloader.getRepository("someUrl")).thenThrow(
+                new Exception("Problem with cloning remote repository."));
+        assertEquals(gitDownloader.getRepository("someUrl"),
+                "Problem with cloning remote repository.");
+
+        Mockito.when(file.delete()).thenThrow(
+                new Exception("Problem with deleting directory"));
+        assertEquals(gitDownloader.getRepository("mam"),
+                "Problem with deleting directory");
 
     }
 
