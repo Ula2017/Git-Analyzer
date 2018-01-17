@@ -103,6 +103,8 @@ public class Fetcher {
                 treeWalk.setRecursive(true);
                 treeWalk.addTree(rev.getTree());
 
+
+
                 while (treeWalk.next()) {
                     String path = treeWalk.getPathString();
 
@@ -131,6 +133,8 @@ public class Fetcher {
                             fileDiffs.setInformation(path, linesNumber, 0);
                         else fileDiffs.setInformation(path, 0, 0);
                         fileDiffs.setLinesNumber(linesNumber);
+                        System.out.println(stream);
+                        fileDiffs.setFileContent(stream);
                         commit.addFile(fileDiffs);
                     }
                     treeWalk.close();
