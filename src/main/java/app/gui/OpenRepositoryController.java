@@ -1,6 +1,7 @@
 package app.gui;
 
 import app.fetch.Fetcher;
+import app.fetch.GitDownloader;
 import app.fetch.URLReader;
 import app.structures.CommitDetails;
 import com.google.inject.Injector;
@@ -10,6 +11,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import org.eclipse.jgit.api.Git;
 
 import java.util.List;
 
@@ -51,6 +53,7 @@ public class OpenRepositoryController extends AbstractController {
 
                             //test
                             List<CommitDetails> commitDetails = fetcher.getAllCommits();
+
                             for (CommitDetails co : commitDetails){
                                // System.out.println(co.getCommitDate());
                                 System.out.println(co.getCommitMessage());

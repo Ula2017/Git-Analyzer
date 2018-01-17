@@ -1,5 +1,6 @@
 package app.gui;
 
+import app.fetch.GitDownloader;
 import app.iOCModule;
 import com.google.inject.Guice;
 import com.sun.glass.ui.Screen;

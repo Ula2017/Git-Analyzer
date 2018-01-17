@@ -20,7 +20,7 @@ public class FetcherTest {
     @Mock
     private RepoDownloader repoDownloader;
     @Mock
-    private Git git;
+    private List<Git> git;
     private Fetcher f;
     @Mock
     private List<CommitDetails> commitDetailsList;

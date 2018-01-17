@@ -37,8 +37,7 @@ import java.util.stream.Collectors;
 @Singleton
 public class Fetcher {
 
-    private Git git;
-    private Repository repository;
+    private List<Git> git;
     private RepoDownloader gitDownloader;
     private List<CommitDetails> commitDetailsList;
 
@@ -51,15 +50,9 @@ public class Fetcher {
     public void prepareDownloader(String url) throws Exception {
         this.commitDetailsList = new ArrayList<>();
         this.git = gitDownloader.getRepository(url);
-        this.repository = git.getRepository();
-
-    }
-    public void closeGit(){
-        this.repository.close();
-        this.git.close();
     }
 
-    public Git getGit() {
+    public List<Git> getGit() {
         return git;
     }
 
@@ -78,21 +71,25 @@ public class Fetcher {
     private List<CommitDetails> generateCommitDetailList() throws Exception {
 
         try {
-            for (RevCommit rev : git.log().call()) {
-                Injector injector = AbstractController.injector;
+            for (Git g : git) {
 
-                CommitDetails commit = injector.getInstance(CommitDetails.class);
-                commit.setPrimaryInformation(new DateTime(rev.getAuthorIdent().getWhen()),
-                        rev.getAuthorIdent().getName(),
-                        rev.getShortMessage(), getCommitBranch(rev));
+                    for (RevCommit rev : g.log().call()) {
+                        System.out.println(rev.getShortMessage());
+                        Injector injector = AbstractController.injector;
+
+                        CommitDetails commit = injector.getInstance(CommitDetails.class);
+                        commit.setPrimaryInformation(new DateTime(rev.getAuthorIdent().getWhen()),
+                                rev.getAuthorIdent().getName(),
+                                rev.getShortMessage(), g.getRepository().getBranch());
 
 
-                addDiffsToCommit(rev, commit, injector);
-                addLinesForAllFiles(rev, commit, injector);
+                        addDiffsToCommit(rev, commit, injector,g);
+                        addLinesForAllFiles(rev, commit, injector, g);
 
-                this.commitDetailsList.add(commit);
+                        this.commitDetailsList.add(commit);
+                    }
+                }
             }
-        }
         catch (GitAPIException e) {
             throw new Exception("Problem occured during getting RevCommits list.");
         }
@@ -101,58 +98,62 @@ public class Fetcher {
     }
 
 
-    private void addLinesForAllFiles(RevCommit rev, CommitDetails commit, Injector injector) throws Exception {
+    private void addLinesForAllFiles(RevCommit rev, CommitDetails commit, Injector injector, Git g) throws Exception {
 
-        TreeWalk treeWalk = new TreeWalk(repository);
-        try {
-            treeWalk.setRecursive(true);
-            treeWalk.addTree(rev.getTree());
+            Repository repository = g.getRepository();
+            TreeWalk treeWalk = new TreeWalk(repository);
+            try {
+                treeWalk.setRecursive(true);
+                treeWalk.addTree(rev.getTree());
 
-            while (treeWalk.next()) {
-                String path = treeWalk.getPathString();
+                while (treeWalk.next()) {
+                    String path = treeWalk.getPathString();
 
-                ObjectId objectId = treeWalk.getObjectId(0);
-                ObjectLoader loader = repository.open(objectId);
+                    ObjectId objectId = treeWalk.getObjectId(0);
+                    ObjectLoader loader = repository.open(objectId);
 
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                loader.copyTo(stream);
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    loader.copyTo(stream);
 
-                int linesNumber = IOUtils.readLines(new ByteArrayInputStream(
-                        stream.toByteArray()), "UTF-8").size();
-                FileDiffs fileDiffs = injector.getInstance(FileDiffs.class);
+                    int linesNumber = IOUtils.readLines(new ByteArrayInputStream(
+                            stream.toByteArray()), "UTF-8").size();
+                    FileDiffs fileDiffs = injector.getInstance(FileDiffs.class);
 
-                List<FileDiffs> fileDiffsList = commit.getFiles();
-                boolean flag = false;
-                for (FileDiffs f:fileDiffsList) {
-                    if(f.getFileName().equals(path)){
-                        f.setLinesNumber(linesNumber);
-                        if(rev.getParentCount()==0)
-                            f.setInsertions(linesNumber);
-                        flag = true;
+                    List<FileDiffs> fileDiffsList = commit.getFiles();
+                    boolean flag = false;
+                    for (FileDiffs f : fileDiffsList) {
+                        if (f.getFileName().equals(path)) {
+                            f.setLinesNumber(linesNumber);
+                            if (rev.getParentCount() == 0)
+                                f.setInsertions(linesNumber);
+                            flag = true;
+                        }
                     }
+                    if (!flag) {
+                        if (rev.getParentCount() == 0)
+                            fileDiffs.setInformation(path, linesNumber, 0);
+                        else fileDiffs.setInformation(path, 0, 0);
+                        fileDiffs.setLinesNumber(linesNumber);
+                        commit.addFile(fileDiffs);
+                    }
+                    treeWalk.close();
                 }
-                if(!flag){
-                    if(rev.getParentCount()==0)
-                        fileDiffs.setInformation(path, linesNumber, 0);
-                    else fileDiffs.setInformation(path,0, 0);
-                    fileDiffs.setLinesNumber(linesNumber);
-                    commit.addFile(fileDiffs);
-                }
-                treeWalk.close();
+            } catch (IOException e) {
+                throw new Exception("Problem occured during adding lines for all files.");
             }
-        } catch (IOException e) {
-            throw new Exception("Problem occured during adding lines for all files.");
-        }
+
     }
 
-    private void addDiffsToCommit(RevCommit rev, CommitDetails commit, Injector injector) throws Exception {
+    private void addDiffsToCommit(RevCommit rev, CommitDetails commit, Injector injector, Git g) throws Exception {
+        Repository repository = g.getRepository();
         if (rev.getParentCount() != 0) {
             List<DiffEntry> diffEntries = null;
 
             try {
-                diffEntries = git.diff()
-                        .setOldTree(getCanonicalTreeParser(rev.getParent(0)))
-                        .setNewTree(getCanonicalTreeParser(rev))
+
+                diffEntries = g.diff()
+                        .setOldTree(getCanonicalTreeParser(rev.getParent(0), repository))
+                        .setNewTree(getCanonicalTreeParser(rev, repository))
                         .call();
 
                 for (DiffEntry diffEntry : diffEntries) {
@@ -176,7 +177,7 @@ public class Fetcher {
         }
     }
 
-    private CanonicalTreeParser getCanonicalTreeParser(RevCommit revCommit) throws Exception {
+    private CanonicalTreeParser getCanonicalTreeParser(RevCommit revCommit, Repository repository) throws Exception {
         try (RevWalk revWalk = new RevWalk(repository)) {
             RevTree revTree = revWalk.parseTree(revCommit.getTree().getId());
 
@@ -192,41 +193,20 @@ public class Fetcher {
         }
     }
 
-    private String getCommitBranch(RevCommit co) throws Exception {
-        List<Ref> call;
-        String branchName;
-        try {
-
-            call = git.branchList().call();
-            for (Ref ref : call) {
-                branchName = ref.getName();
-                for (RevCommit commit : git.log().add(repository.resolve(branchName)).call()) {
-                    if (commit.getName().equals(co.getName())) {
-                        return branchName;
-
-                    }
-                }
-            }
-        } catch (GitAPIException e) {
-            throw new Exception("Problem occurred getting branch list from Git.");
-        } catch (IOException e) {
-            throw new Exception("Problem occurred getting commit list from branch.");
-        }
-
-        return null;
-    }
 
     public Map<String, Integer> getAmountOfBranchCommits() throws Exception {
         List<Ref> call;
         Map<String, Integer> map = new HashMap<>();
         try {
-            call = git.branchList().call();
-            for (Ref ref : call) {
-                int i = 0;
-                for (RevCommit commit : git.log().add(repository.resolve(ref.getName())).call()) {
-                    i++;
+            for(Git g: git) {
+                call = g.branchList().call();
+                for (Ref ref : call) {
+                    int i = 0;
+                    for (RevCommit commit : g.log().add(g.getRepository().resolve(ref.getName())).call()) {
+                        i++;
+                    }
+                    map.put(ref.getName(), i);
                 }
-                map.put(ref.getName(), i);
             }
 
         } catch (GitAPIException | IOException e) {
