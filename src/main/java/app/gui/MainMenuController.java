@@ -1,13 +1,25 @@
 package app.gui;
 
-import com.google.inject.Injector;
+import com.google.inject.Inject;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 
 public class MainMenuController extends AbstractController {
-    public MainMenuController(){
+    private OpenRepositoryController openRepositoryController;
+    private ContactController contactController;
+    private OptionsController optionsController;
+    private DialogController dialogController;
+
+    @Inject
+    public MainMenuController(OpenRepositoryController op, ContactController cont,
+                              OptionsController opct, DialogController d){
+
+        this.contactController = cont;
+        this.optionsController = opct;
+        this.dialogController = d;
+        this.openRepositoryController = op;
         this.scene = createScene();
     }
 
@@ -18,7 +30,6 @@ public class MainMenuController extends AbstractController {
 
     @Override
     Scene createScene() {
-        Injector injector = AbstractController.injector;
 
         GridPane mainMenuGrid = getAbstractGrid();
         mainMenuGrid.add(getText("Welcome to Git Analyzer", 70), 0,0);
@@ -30,15 +41,14 @@ public class MainMenuController extends AbstractController {
 
         mainMenuBox.getChildren().addAll(
             getButton("Open repository", 350, 55,
-                    () -> injector.getInstance(OpenRepositoryController.class).show()),
+                    () -> this.openRepositoryController.show()),
             getButton("Options", 350, 55,
-                    () -> injector.getInstance(OptionsController.class).show()),
+                    () -> this.optionsController.show()),
             getButton("Contact", 350, 55,
-                    () -> injector.getInstance(ContactController.class).show()),
+                    () -> this.contactController.show()),
             getButton("Exit", 350, 55,
-                    () -> injector.getInstance(DialogController.class).createExitDialog())
+                    () -> this.dialogController.createExitDialog())
         );
-
         return new Scene(mainMenuGrid, primaryStage.getWidth(), primaryStage.getHeight());
     }
 }

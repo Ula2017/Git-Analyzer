@@ -20,7 +20,6 @@ import javafx.stage.Stage;
  */
 public abstract class AbstractController {
     protected static Stage primaryStage;
-    public static Injector injector;
     protected Scene scene;
 
     protected void changeScene( Scene scene) {

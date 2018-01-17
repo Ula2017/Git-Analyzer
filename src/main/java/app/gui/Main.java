@@ -1,7 +1,8 @@
 package app.gui;
 
-import app.iOCModule;
+import app.IoCModule;
 import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.sun.glass.ui.Screen;
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -15,7 +16,7 @@ public class Main extends Application {
         primaryStage.setHeight(Screen.getMainScreen().getVisibleHeight());
         AbstractController.primaryStage = primaryStage;
 
-        AbstractController.injector = Guice.createInjector(new iOCModule());
-        AbstractController.injector.getInstance(MainMenuController.class).show();
+        Injector injector = Guice.createInjector(new IoCModule());
+        injector.getInstance(MainMenuController.class).show();
     }
 }

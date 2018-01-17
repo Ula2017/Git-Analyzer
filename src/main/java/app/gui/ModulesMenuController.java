@@ -3,7 +3,7 @@ package app.gui;
 import app.analysis.AbstractAnalyzerModule;
 import app.structures.GUIDetails;
 import com.google.inject.Inject;
-import com.google.inject.Injector;
+import com.google.inject.Provider;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
@@ -32,10 +32,16 @@ public class ModulesMenuController extends AbstractController {
     private TextField  committerName;
     private ComboBox comboBox;
     private Set<AbstractAnalyzerModule> analyzerModuleSet;
+    private ModuleController moduleController;
+    private Provider<OpenRepositoryController> openRepositoryController;
 
     @Inject
-    public ModulesMenuController(Set<AbstractAnalyzerModule> analyzerModuleSet) {
+    public ModulesMenuController(Set<AbstractAnalyzerModule> analyzerModuleSet,
+                                ModuleController m, Provider<OpenRepositoryController> op) {
+
         this.analyzerModuleSet = analyzerModuleSet;
+        this.moduleController = m;
+        this.openRepositoryController = op;
         this.scene = createScene();
     }
 
@@ -46,7 +52,6 @@ public class ModulesMenuController extends AbstractController {
 
     @Override
     Scene createScene() {
-        Injector injector = AbstractController.injector;
 
         GridPane modulesMenuGrid = getAbstractGrid();
 
@@ -56,16 +61,12 @@ public class ModulesMenuController extends AbstractController {
         modulesMenuBox.setStyle("-fx-font: 40 Tahoma");
         modulesMenuGrid.add(modulesMenuBox, 0,0);
 
-   //     Analyzer analyzer = new Analyzer();
-   //     comboBox = new ComboBox(FXCollections.observableArrayList(analyzer.getModulesNames()));
-
         comboBox = new ComboBox(FXCollections.observableArrayList(analyzerModuleSet));
         comboBox.setVisibleRowCount(5);
         comboBox.getSelectionModel().selectFirst();
         comboBox.setOnAction(x -> {
         	moduleName = comboBox.getSelectionModel().getSelectedItem().toString();
         	if (moduleName.equals("Authors Commits Analyzer")){
-//                	System.out.println(moduleName);
                 	showAccurateFields(moduleName, modulesMenuBox);
         	}
         });
@@ -101,7 +102,6 @@ public class ModulesMenuController extends AbstractController {
         moduleGenerateButton = getButton("Generate", 450, 55, () -> {
             LocalDate fromDate = fromDatePicker.getValue();
             LocalDate toDate = toDatePicker.getValue();
-            ModuleController moduleController = injector.getInstance(ModuleController.class);
             moduleController.setGUIDetails(new GUIDetails(
                     new DateTime(fromDate.getYear(), fromDate.getMonthValue(), fromDate.getDayOfMonth(), 0, 0),
                     new DateTime(toDate.getYear(), toDate.getMonthValue(), toDate.getDayOfMonth(), 0, 0),
@@ -113,10 +113,9 @@ public class ModulesMenuController extends AbstractController {
         
      
         moduleChangeRepositoryButton = getButton("Change Repository", 450, 55,
-                () -> injector.getInstance(OpenRepositoryController.class).show());
+                () -> openRepositoryController.get().show());
         authorTextField = new TextField();
         authorTextField.setPrefHeight(40);
-
         showAccurateFields(modulesMenuBox);
 
         return new Scene(modulesMenuGrid, primaryStage.getWidth(), primaryStage.getHeight());

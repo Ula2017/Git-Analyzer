@@ -12,7 +12,7 @@ import app.fetch.RepoDownloader;
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
 
-public class iOCModule extends AbstractModule {
+public class IoCModule extends AbstractModule {
     @Override
     protected void configure() {
         Multibinder<AbstractAnalyzerModule> analyzerModuleMultibinder = Multibinder.newSetBinder(binder(), AbstractAnalyzerModule.class);

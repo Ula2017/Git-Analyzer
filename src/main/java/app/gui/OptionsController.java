@@ -1,6 +1,7 @@
 package app.gui;
 
-import com.google.inject.Injector;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.layout.GridPane;
@@ -11,18 +12,23 @@ import javafx.scene.layout.VBox;
  */
 
 public class OptionsController extends AbstractController {
-    public OptionsController(){
-        this.scene = createScene();
+    private Provider<MainMenuController> mainMenuController;
+
+    @Inject
+    public OptionsController(Provider<MainMenuController> mainMenuController){
+
+       this.scene = createScene();
+       this.mainMenuController = mainMenuController;
     }
 
     @Override
     public void show() {
+
         changeScene(this.scene);
     }
 
     @Override
     Scene createScene() {
-        Injector injector = AbstractController.injector;
 
         GridPane optionsGrid = getAbstractGrid();
 
@@ -35,9 +41,8 @@ public class OptionsController extends AbstractController {
         optionsBox.getChildren().addAll(
                 getText("Options", 70),
                 getButton("Back", 350, 55,
-                        () -> injector.getInstance(MainMenuController.class).show())
+                        () -> this.mainMenuController.get().show())
         );
-
         return new Scene(optionsGrid, primaryStage.getWidth(), primaryStage.getHeight());
     }
 }

@@ -1,10 +1,10 @@
 package app.gui;
 
 import app.fetch.Fetcher;
-import app.fetch.GitDownloader;
 import app.fetch.URLReader;
 import app.structures.CommitDetails;
-import com.google.inject.Injector;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -20,7 +20,19 @@ import java.util.List;
  */
 
 public class OpenRepositoryController extends AbstractController {
-    public OpenRepositoryController(){
+    Fetcher fetcher;
+    private ModulesMenuController modulesMenuController;
+    private DialogController dialogController;
+    private Provider<MainMenuController> mainMenuController;
+
+    @Inject
+    public OpenRepositoryController(Fetcher f, ModulesMenuController m,
+                                    DialogController d, Provider<MainMenuController> ma){
+
+        this.fetcher = f;
+        this.modulesMenuController = m;
+        this.dialogController = d;
+        this.mainMenuController = ma;
         this.scene = createScene();
     }
 
@@ -31,8 +43,6 @@ public class OpenRepositoryController extends AbstractController {
 
     @Override
     Scene createScene() {
-        Injector injector = AbstractController.injector;
-
         GridPane openRepositoryGrid = getAbstractGrid();
 
         VBox openRepositoryBox = new VBox(50);
@@ -48,30 +58,17 @@ public class OpenRepositoryController extends AbstractController {
                     try {
                         if (URLReader.checkIfExistsRemote(repoPathTextField.getText())) {
 
-                            Fetcher fetcher = injector.getInstance(Fetcher.class);
                             fetcher.prepareDownloader(repoPathTextField.getText());
-
-                            //test
-                            List<CommitDetails> commitDetails = fetcher.getAllCommits();
-
-                            for (CommitDetails co : commitDetails){
-                               // System.out.println(co.getCommitDate());
-                                System.out.println(co.getCommitMessage());
-                            }
-                            //-------------------
-
-                            injector.getInstance(ModulesMenuController.class).show();
+                            modulesMenuController.show();
                             repoPathTextField.clear();
                         } else {
                             repoPathTextField.setStyle("-fx-border-color: red");
-                            DialogController exController = injector.getInstance(DialogController.class);
-                            exController.createWarningDialog("Incorrect repository url or repository doesn't exist. ");
+                            dialogController.createWarningDialog("Incorrect repository url or connection problem. ");
                             repoPathTextField.setStyle("-fx-border-color: black");
 
                         }
                     } catch (Exception e) {
-                        DialogController exController = injector.getInstance(DialogController.class);
-                        exController.createExceptionDialog(e);
+                        dialogController.createExceptionDialog(e);
 
                     }
                 }
@@ -82,7 +79,7 @@ public class OpenRepositoryController extends AbstractController {
                 repoPathTextField,
                 openRepositoryButton,
                 getButton("Back", 350, 55,
-                        () -> { repoPathTextField.clear(); injector.getInstance(MainMenuController.class).show();})
+                        () -> { repoPathTextField.clear(); this.mainMenuController.get().show();})
         );
 
         return new Scene(openRepositoryGrid, primaryStage.getWidth(), primaryStage.getHeight());

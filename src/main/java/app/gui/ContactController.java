@@ -1,6 +1,7 @@
 package app.gui;
 
-import com.google.inject.Injector;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.layout.GridPane;
@@ -11,7 +12,13 @@ import javafx.scene.layout.VBox;
  */
 
 public class ContactController extends AbstractController {
-    public ContactController(){ this.scene = createScene(); }
+
+    private Provider<MainMenuController> mainMenuControllerProvider;
+
+    @Inject
+    public ContactController(Provider<MainMenuController> mainMenuControllerProvider){
+        this.mainMenuControllerProvider = mainMenuControllerProvider;
+        this.scene = createScene(); }
 
     @Override
     public void show() {
@@ -20,7 +27,6 @@ public class ContactController extends AbstractController {
 
     @Override
     Scene createScene() {
-        Injector injector = AbstractController.injector;
 
         GridPane contactGrid = getAbstractGrid();
 
@@ -35,7 +41,7 @@ public class ContactController extends AbstractController {
                 getText("Email: gitanalyzer@gmail.com", 50),
                 getText("Phone no: +48 789456123", 50),
                 getButton("Back", 350, 55,
-                        () -> injector.getInstance(MainMenuController.class).show())
+                        () -> mainMenuControllerProvider.get().show())
         );
 
         return new Scene(contactGrid, primaryStage.getWidth(), primaryStage.getHeight());

@@ -3,6 +3,8 @@ package app.fetch.Test;
 import app.fetch.Fetcher;
 import app.fetch.RepoDownloader;
 import app.structures.CommitDetails;
+import app.structures.FileDiffs;
+import com.google.inject.Provider;
 import org.eclipse.jgit.api.Git;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,10 +26,14 @@ public class FetcherTest {
     private Fetcher f;
     @Mock
     private List<CommitDetails> commitDetailsList;
+    @Mock
+    private CommitDetails com;
+    @Mock
+    private FileDiffs fd;
 
     @Before
     public void setup() {
-        f = new Fetcher(repoDownloader);
+        f = new Fetcher(repoDownloader, (Provider<CommitDetails>) com, (Provider<FileDiffs>)fd );
     }
 
     @Test

@@ -10,9 +10,7 @@ import java.util.Optional;
 
 public class DialogController {
 
-    public DialogController(){
-
-    }
+    public DialogController(){ }
 
     public void createExceptionDialog( Exception ex){
 
@@ -43,7 +41,6 @@ public class DialogController {
         expContent.add(textArea, 0, 1);
 
         alert.getDialogPane().setExpandableContent(expContent);
-
         alert.showAndWait();
 
     }
@@ -54,7 +51,6 @@ public class DialogController {
         alert.setTitle("Warning Dialog");
         alert.setHeaderText(null);
         alert.setContentText(message);
-
         alert.showAndWait();
     }
 

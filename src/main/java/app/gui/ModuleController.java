@@ -4,7 +4,7 @@ import app.analysis.AbstractAnalyzerModule;
 import app.analysis.AnalysisFactory;
 import app.structures.GUIDetails;
 import com.google.inject.Inject;
-import com.google.inject.Injector;
+import com.google.inject.Provider;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -19,10 +19,16 @@ public class ModuleController extends AbstractController {
     private DateTime to;
     private String committerName;
     private AnalysisFactory analysisFactory;
-    
+    private DialogController dialogController;
+    private Provider<ModulesMenuController> modulesMenuController;
+
     @Inject
-    public ModuleController(AnalysisFactory analysisFactory) {
+    public ModuleController(AnalysisFactory analysisFactory, DialogController d,
+                            Provider<ModulesMenuController> m) {
+
         this.analysisFactory = analysisFactory;
+        this.dialogController = d;
+        this.modulesMenuController = m;
     }
 
     public void setGUIDetails(GUIDetails guiDetails){
@@ -42,7 +48,6 @@ public class ModuleController extends AbstractController {
 
     @Override
     Scene createScene() {
-        Injector injector = AbstractController.injector;
         GridPane moduleGrid = getAbstractGrid();
 
         VBox moduleBox = new VBox(50);
@@ -57,14 +62,14 @@ public class ModuleController extends AbstractController {
                 getText(module.toString(), 70),
                 imageView,
                 getButton("Back", 450, 55,
-                        () -> injector.getInstance(ModulesMenuController.class).show())
+                        () -> modulesMenuController.get().show())
         );
 
         try {
-            imageView.setImage(new Image(analysisFactory.generateFile(module, from, to, committerName).toURI().toURL().toString()));
+            imageView.setImage(new Image(analysisFactory.generateFile(module, from, to, committerName).
+                    toURI().toURL().toString()));
         } catch (Exception e) {
-            DialogController exController = injector.getInstance(DialogController.class);
-            exController.createExceptionDialog(e);
+            dialogController.createExceptionDialog(e);
         }
 
         return new Scene(moduleGrid, primaryStage.getWidth(), primaryStage.getHeight());

@@ -1,11 +1,8 @@
 package app.fetch;
 
-import app.gui.AbstractController;
 import app.structures.CommitDetails;
 import app.structures.FileDiffs;
-import com.google.inject.Inject;
-import com.google.inject.Injector;
-import com.google.inject.Singleton;
+import com.google.inject.*;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -36,13 +33,17 @@ public class Fetcher {
 
     private List<Git> git;
     private RepoDownloader gitDownloader;
+    private Provider<CommitDetails> commitDetailsProvider;
+    private Provider<FileDiffs> fileDiffsProvider;
     private List<CommitDetails> commitDetailsList;
-    Injector injector;
 
     @Inject
-    public Fetcher(RepoDownloader repoDownloader) {
+    public Fetcher(RepoDownloader repoDownloader,
+                   Provider<CommitDetails> commitDetailsProvider, Provider<FileDiffs> fileDiffsProvider) {
         this.gitDownloader = repoDownloader;
 
+        this.commitDetailsProvider = commitDetailsProvider;
+        this.fileDiffsProvider = fileDiffsProvider;
     }
 
     public void prepareDownloader(String url) throws Exception {
@@ -65,17 +66,15 @@ public class Fetcher {
         return getAllCommits().stream().filter(d -> d.getCommitDate().isAfter(startDate)
                 && d.getCommitDate().isBefore(endDate)).collect(Collectors.toList());
     }
-//throws Exception
+
     private List<CommitDetails> generateCommitDetailList() throws Exception {
-        this.injector = AbstractController.injector;
         try {
             for (Git g : git) {
 
                     for (RevCommit rev : g.log().call()) {
                         System.out.println(rev.getShortMessage());
 
-
-                        CommitDetails commit = injector.getInstance(CommitDetails.class);
+                        CommitDetails commit = commitDetailsProvider.get();
                         commit.setPrimaryInformation(new DateTime(rev.getAuthorIdent().getWhen()),
                                 rev.getAuthorIdent().getName(),
                                 rev.getShortMessage(), g.getRepository().getBranch());
@@ -116,7 +115,7 @@ public class Fetcher {
 
                     int linesNumber = IOUtils.readLines(new ByteArrayInputStream(
                             stream.toByteArray()), "UTF-8").size();
-                    FileDiffs fileDiffs = injector.getInstance(FileDiffs.class);
+                    FileDiffs fileDiffs = fileDiffsProvider.get();
 
                     List<FileDiffs> fileDiffsList = commit.getFiles();
                     boolean flag = false;
@@ -133,7 +132,6 @@ public class Fetcher {
                             fileDiffs.setInformation(path, linesNumber, 0);
                         else fileDiffs.setInformation(path, 0, 0);
                         fileDiffs.setLinesNumber(linesNumber);
-                        System.out.println(stream);
                         fileDiffs.setFileContent(stream);
                         commit.addFile(fileDiffs);
                     }
@@ -167,7 +165,7 @@ public class Fetcher {
                     deletions = edits.stream().mapToInt(Edit::getLengthA).sum();
                     insertions = edits.stream().mapToInt(Edit::getLengthB).sum();
 
-                    FileDiffs fileDiffs = injector.getInstance(FileDiffs.class);
+                    FileDiffs fileDiffs = fileDiffsProvider.get();
                     fileDiffs.setInformation(diffEntry.getNewPath(), insertions, deletions);
                     commit.addFile(fileDiffs);
 
