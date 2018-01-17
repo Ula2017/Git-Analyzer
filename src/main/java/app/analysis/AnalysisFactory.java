@@ -16,15 +16,18 @@ public class AnalysisFactory {
     private final Fetcher fetcher;
 
     @Inject
-    public AnalysisFactory(Fetcher fetcher){
+    public AnalysisFactory(Fetcher fetcher) {
         this.fetcher = fetcher;
     }
 
     //mock fetchera
-    public File generateFile(AbstractAnalyzerModule module, DateTime from, DateTime to, String committerName) throws Exception {
+    public File generateFile(AbstractAnalyzerModule module, GUIDetails guiDetails) throws Exception {
+        DateTime from = guiDetails.getFrom(), to = guiDetails.getTo();
+        String committerName = guiDetails.getCommitterName();
+
         return module.generateFile(fetcher.getCommitsFromDateRange(from, to).stream()
                         .filter(cd -> (committerName == null || committerName.isEmpty()) ||
                                 Objects.equals(cd.getAuthorName(), committerName)).collect(Collectors.toList()),
-                new GUIDetails(from, to ,committerName));
+                guiDetails);
     }
 }

@@ -66,8 +66,7 @@ public class ModuleController extends AbstractController {
         );
 
         try {
-            imageView.setImage(new Image(analysisFactory.generateFile(module, from, to, committerName).
-                    toURI().toURL().toString()));
+            imageView.setImage(new Image(analysisFactory.generateFile(module, new GUIDetails(from, to, committerName)).toURI().toURL().toString()));
         } catch (Exception e) {
             dialogController.createExceptionDialog(e);
         }
