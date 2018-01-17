@@ -22,11 +22,6 @@ public class AnalysisFactory {
     }
 
     public File generateFile(AbstractAnalyzerModule module, DateTime from, DateTime to, String committerName) throws Exception {
-        System.out.println("Karol");
-
-        for (CommitDetails cd:fetcher.getCommitsFromDateRange(from, to)) {
-            System.out.println(cd.getCommitMessage());
-        }
         return module.generateFile(fetcher.getCommitsFromDateRange(from, to).stream()
                         .filter(cd -> (committerName == null || committerName.isEmpty()) ||
                                 Objects.equals(cd.getAuthorName(), committerName)).collect(Collectors.toList()),

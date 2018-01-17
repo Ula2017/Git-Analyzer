@@ -32,7 +32,7 @@ public class MonthlyAmmountOfCommitersTest {
     }
 
     @Test
-    public void test1() throws Exception {
+    public void createDatasetTest() throws Exception {
         //Prepare
         CommitDetails cm11 = new CommitDetails();
         cm11.setPrimaryInformation(new DateTime().withYear(2016).withMonthOfYear(11).withDayOfMonth(11), "karolb", "Commit message 1.1", "master");

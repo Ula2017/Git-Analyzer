@@ -3,7 +3,7 @@ package app.analysis;
 import app.structures.CommitDetails;
 import app.structures.GUIDetails;
 import org.joda.time.DateTime;
-import app.fetch.*;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -17,8 +17,6 @@ import java.util.stream.Collectors;
 import static java.util.Collections.reverseOrder;
 
 public class CommitsPerBranchModule extends AbstractAnalyzerModule {
-
-
     @Override
     public String toString() {
         return "Number of commits per branch";
@@ -40,14 +38,12 @@ public class CommitsPerBranchModule extends AbstractAnalyzerModule {
     }
 
     public List<String> createDataSet(List<CommitDetails> commitDetails, DateTime from, DateTime to) throws IOException {
-
-        Map<String, Integer> commits = getCommitsPerBranch(commitDetails,from,to);
+        Map<String, Integer> commits = getCommitsPerBranch(commitDetails, from, to);
         List<String> dataSet = new ArrayList<>();
 
-        AtomicInteger i = new AtomicInteger(1);
         dataSet.add("Number od commits per branch");
-        commits.entrySet().stream().sorted(reverseOrder(Map.Entry.comparingByValue())).forEach(c -> dataSet.add(String.format("%d. %s %d", i.getAndIncrement(), c.getKey(), c.getValue())));
-        i.set(1);
+        commits.entrySet().stream().sorted(reverseOrder(Map.Entry.comparingByValue())).forEach(c -> dataSet.add(String.format("%s %d", c.getKey(), c.getValue())));
+
         return dataSet;
     }
 
@@ -55,20 +51,18 @@ public class CommitsPerBranchModule extends AbstractAnalyzerModule {
         Map<String, Integer> branches = new HashMap<>();
 
         getBranches(commitDetails, from, to)
-                .forEach(a ->/*System.out.println(a));*/ branches.put(a,getNumberOfCommitsPerBranch(commitDetails,from,to,a)));
+                .forEach(a -> { System.out.println(a); branches.put(a, getNumberOfCommitsPerBranch(commitDetails,from,to,a));});
 
         return branches;
     }
 
     private Set<String> getBranches(List<CommitDetails> commitDetails, DateTime from, DateTime to){
         return commitDetails.stream()
-                .filter(cd -> cd.getCommitDate().getMillis() >= from.getMillis() && cd.getCommitDate().getMillis() <= to.getMillis())
                 .map(CommitDetails::getBranch)
                 .collect(Collectors.toSet());
     }
 
     private int getNumberOfCommitsPerBranch(List<CommitDetails> commitDetails, DateTime from, DateTime to, String name){
-
         List<CommitDetails> commits = commitDetails.stream()
                                         .filter(cd -> Objects.equals(cd.getBranch(), name))
                                         .collect(Collectors.toList());

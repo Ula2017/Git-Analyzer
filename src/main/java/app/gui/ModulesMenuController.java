@@ -65,7 +65,7 @@ public class ModulesMenuController extends AbstractController {
         comboBox.setOnAction(x -> {
         	moduleName = comboBox.getSelectionModel().getSelectedItem().toString();
         	if (moduleName.equals("Authors Commits Analyzer")){
-                	System.out.println(moduleName);
+//                	System.out.println(moduleName);
                 	showAccurateFields(moduleName, modulesMenuBox);
         	}
         });

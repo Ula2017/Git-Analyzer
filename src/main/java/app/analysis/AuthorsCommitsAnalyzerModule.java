@@ -1,11 +1,6 @@
 package app.analysis;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-
+import app.structures.CommitDetails;
 import app.structures.GUIDetails;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
@@ -16,7 +11,10 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.joda.time.DateTime;
 import org.joda.time.Hours;
 
-import app.structures.CommitDetails;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class AuthorsCommitsAnalyzerModule extends AbstractAnalyzerModule {
 
@@ -85,7 +83,7 @@ public class AuthorsCommitsAnalyzerModule extends AbstractAnalyzerModule {
 		
         int res = createListWithCommits(commitDetails, committerName);
         if (res < 1){
-        	System.out.println("Unko!  " + res);
+//        	System.out.println("Unko!  " + res);
         }
       
         XYDataset dataset = createDataset(committerName);
@@ -109,7 +107,7 @@ public class AuthorsCommitsAnalyzerModule extends AbstractAnalyzerModule {
         XYSeries series = new XYSeries("Number of commits for " + committerName);	
         
         
-        System.out.println("projectStartDate: " + projectStartDate + ", projectEndDate: " + projectEndDate);
+//        System.out.println("projectStartDate: " + projectStartDate + ", projectEndDate: " + projectEndDate);
         //RepoCommits(projectStartDate, projectEndDate);
         
         int interval = (Hours.hoursBetween(projectStartDate, projectEndDate).getHours() ) / numberOfIntervals;
@@ -121,8 +119,8 @@ public class AuthorsCommitsAnalyzerModule extends AbstractAnalyzerModule {
         
         while (periodStartDate.compareTo(projectEndDate) < 0){				//periodStartDate < projectEndDate
         	numberOfCommitsInPeriod = findCommitsInPeriodOfTime(periodStartDate, periodStartDate.plusHours(interval));
-        	System.out.println("Number of commits: ");
-        	System.out.println(numberOfCommitsInPeriod);
+//        	System.out.println("Number of commits: ");
+//        	System.out.println(numberOfCommitsInPeriod);
         	series.add(hourOfProjectExistance, numberOfCommitsInPeriod);
         	periodStartDate = periodStartDate.plusHours(interval);
         	hourOfProjectExistance+=interval;

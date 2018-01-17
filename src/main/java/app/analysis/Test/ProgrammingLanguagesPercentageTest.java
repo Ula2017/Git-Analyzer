@@ -29,7 +29,7 @@ public class ProgrammingLanguagesPercentageTest {
     }
 
     @Test
-    public void test1() throws Exception {
+    public void createDatasetTest() throws Exception {
         //Prepare
         CommitDetails cm1 = new CommitDetails();
         cm1.setPrimaryInformation(new DateTime().withYear(2016).withMonthOfYear(11).withDayOfMonth(1), "karolb", "Commit message 1.1", "master");
