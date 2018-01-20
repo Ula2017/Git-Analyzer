@@ -2,6 +2,9 @@ package app.analysis;
 
 import app.structures.CommitDetails;
 import app.structures.GUIDetails;
+import javafx.scene.Node;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
@@ -9,6 +12,7 @@ import org.jfree.data.general.DefaultPieDataset;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -26,10 +30,13 @@ public class ProgrammingLanguagesPercentageModule extends AbstractAnalyzerModule
 		return "Percentage of lines in different programming languages";
 	}
 
-	@Override
-	public File generateFile(List<CommitDetails> commitDetails, GUIDetails guiDetails) throws CreateImageException {
-		return createFileWithChart(commitDetails, getPathForOutput());
-	}
+    @Override
+    public Node generateNode(List<CommitDetails> commitDetails, GUIDetails guiDetails) throws CreateImageException, MalformedURLException {
+        ImageView node = new ImageView();
+        node.setFitWidth(width);
+        node.setImage(new Image(createFileWithChart(commitDetails, getPathForOutput()).toURI().toURL().toString()));
+        return node;
+    }
 
     public File createFileWithChart(List<CommitDetails> commitDetails, String outputPath) throws CreateImageException {
         JFreeChart chart = ChartFactory.createPieChart("Lines of code", // chart title

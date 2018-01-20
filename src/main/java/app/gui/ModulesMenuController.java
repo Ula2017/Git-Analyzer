@@ -70,19 +70,6 @@ public class ModulesMenuController extends AbstractController {
                 	showAccurateFields(moduleName, modulesMenuBox);
         	}
         });
-        
-
-//        moduleName = Arrays.stream(ModuleNames.values())
-//                .filter(m -> Objects.equals(m.toString(), comboBox.getSelectionModel().getSelectedItem().toString()))
-//                .findFirst().get();
-//        comboBox.setOnAction(x -> {
-//            moduleName = Arrays.stream(ModuleNames.values())
-//                    .filter(m -> Objects.equals(m.toString(), comboBox.getSelectionModel().getSelectedItem().toString()))
-//                    .findFirst().get();
-//            showAccurateFields(moduleName, modulesMenuBox);
-//        });
-//        modulesMenuBox.getChildren().add(comboBox);
-
 
         fromDatePicker = new DatePicker(LocalDate.now());
         fromDatePicker.setOnAction(x -> {
@@ -131,7 +118,6 @@ public class ModulesMenuController extends AbstractController {
         ObservableList<Node> children = moduleBox.getChildren();
         children.removeAll(comboBox, fromDatePicker, toDatePicker, committerName, moduleGenerateButton, moduleChangeRepositoryButton);
         children.addAll(fromDatePicker, toDatePicker, committerName, moduleGenerateButton, moduleChangeRepositoryButton);
-       // children.add(committerName);
-        
+
     }
 }

@@ -5,6 +5,8 @@ import app.analysis.AnalysisFactory;
 import app.fetch.Fetcher;
 import app.structures.CommitDetails;
 import app.structures.GUIDetails;
+import javafx.scene.Node;
+import javafx.scene.image.ImageView;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -13,7 +15,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -58,17 +59,17 @@ public class AnalysisFactoryTest extends AbstractTest{
                 endDate = new DateTime().withYear(2018).withMonthOfYear(1).withDayOfMonth(1);
         final GUIDetails guiDetails = new GUIDetails(startDate, endDate, commiterName);
         final String fileName = "osom file name";
-        final File file = new File("images\\"+fileName);
+        final Node node = Mockito.mock(ImageView.class);
 
         Mockito.when(f.getCommitsFromDateRange(startDate, endDate)).thenReturn(commitDetails);
-        Mockito.when(aam.generateFile(commitDetails, guiDetails)).thenReturn(file);
+        Mockito.when(aam.generateNode(commitDetails, guiDetails)).thenReturn(node);
         Mockito.when(aam.toString()).thenReturn(fileName);
 
         //act
-        File resFile = af.generateFile(aam, guiDetails);
+        Node resNode = af.generateNode(aam, guiDetails);
 
         //assert
-        assert resFile.equals(file);
+        assert resNode.equals(node);
     }
 
     @After

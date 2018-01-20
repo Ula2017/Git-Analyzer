@@ -1,7 +1,6 @@
 package app.analysis.Test;
 
 import app.analysis.ClassificationModule;
-import app.analysis.CreateImageException;
 import app.structures.CommitDetails;
 import org.joda.time.DateTime;
 import org.junit.After;
@@ -14,9 +13,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  * Created by Karol on 2018-01-16.
@@ -31,17 +27,6 @@ public class ClassificationTest extends AbstractTest{
     public void setUp(){
         cm = new ClassificationModule();
         commitDetails = new ArrayList<>();
-    }
-
-    @Test
-    public void createFileWithTableShouldThrowExceptionWhenWrongPath(){
-        try {
-            cm.createFileWithTable(commitDetails, new DateTime().withYear(2017).withMonthOfYear(11).withDayOfMonth(1),
-                    new DateTime().withYear(2018).withMonthOfYear(1).withDayOfMonth(1), "someStupidPath\\whichDoesNotExist\\file.jpg");
-            fail("Expected an CreateImageException to be thrown");
-        } catch (CreateImageException e) {
-            assertTrue(Objects.equals(e.getMessage(), "Output path for image is not correct"));
-        }
     }
 
     @Test

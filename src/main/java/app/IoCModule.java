@@ -23,6 +23,5 @@ public class IoCModule extends AbstractModule {
         analyzerModuleMultibinder.addBinding().to(AuthorsCommitsAnalyzerModule.class);
         analyzerModuleMultibinder.addBinding().to(CommitsPerBranchModule.class);
         bind(RepoDownloader.class).to(GitDownloader.class);
-
     }
 }

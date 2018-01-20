@@ -6,9 +6,8 @@ import app.structures.GUIDetails;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import org.joda.time.DateTime;
@@ -56,20 +55,16 @@ public class ModuleController extends AbstractController {
         moduleBox.setStyle("-fx-font: 40 Tahoma");
         moduleGrid.add(moduleBox, 0,0);
 
-        ImageView imageView = new ImageView();
-        imageView.setFitWidth(600);
+        Node node = null;
+        try { node = analysisFactory.generateNode(module, new GUIDetails(from, to, committerName));}
+        catch (Exception e) { dialogController.createExceptionDialog(e);}
+
         moduleBox.getChildren().addAll(
                 getText(module.toString(), 70),
-                imageView,
+                node,
                 getButton("Back", 450, 55,
                         () -> modulesMenuController.get().show())
         );
-
-        try {
-            imageView.setImage(new Image(analysisFactory.generateFile(module, new GUIDetails(from, to, committerName)).toURI().toURL().toString()));
-        } catch (Exception e) {
-            dialogController.createExceptionDialog(e);
-        }
 
         return new Scene(moduleGrid, primaryStage.getWidth(), primaryStage.getHeight());
     }

@@ -1,15 +1,19 @@
 package app.analysis;
 
+import app.structures.ClassificationDTO;
 import app.structures.CommitDetails;
 import app.structures.FileDiffs;
 import app.structures.GUIDetails;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.Node;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import org.joda.time.DateTime;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -25,28 +29,53 @@ public class ClassificationModule extends AbstractAnalyzerModule {
 		return "Classification";
 	}
 
-	@Override
-	public File generateFile(List<CommitDetails> commitDetails, GUIDetails guiDetails) throws CreateImageException {
-		return createFileWithTable(commitDetails, guiDetails.getFrom(), guiDetails.getTo(), getPathForOutput());
-	}
+    @Override
+    public Node generateNode(List<CommitDetails> commitDetails, GUIDetails guiDetails) throws CreateImageException, MalformedURLException {
+        ObservableList<ClassificationDTO> classificationDTOS = FXCollections.observableArrayList(createDataSets(commitDetails, guiDetails.getFrom(), guiDetails.getTo()));
+        TableView node = new TableView(classificationDTOS);
+        node.setPrefWidth(width);
+        node.setPrefHeight(height);
 
-	public File createFileWithTable(List<CommitDetails> commitDetails, DateTime from, DateTime to, String outputPath) throws CreateImageException {
-        File outputFile;
-        try {
-            outputFile = new File(outputPath);
+        TableColumn<ClassificationDTO, String> committerName = new TableColumn<>();
+        committerName.setPrefWidth(400);
+        committerName.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getAuthorName()));
+        committerName.setText("Committer name");
 
-            BufferedImage bi = createImageFromText(createDataSet(commitDetails, from, to));
-            ImageIO.write(bi, "png", outputFile);
-        }
-        catch (NullPointerException e){
-            throw new CreateImageException("Output path for image is not correct");
-        }
-        catch (IOException e) {
-            throw new CreateImageException("Problem creating image with table for ClassificationModule");
-        }
+        TableColumn<ClassificationDTO, Integer> commits = new TableColumn<>();
+        commits.setPrefWidth(185);
+        commits.setCellValueFactory(c -> new SimpleIntegerProperty(c.getValue().getCommits()).asObject());
+        commits.setText("Commits");
 
-        return outputFile;
-	}
+        TableColumn<ClassificationDTO, Integer> insertions = new TableColumn<>();
+        insertions.setPrefWidth(185);
+        insertions.setCellValueFactory(c -> new SimpleIntegerProperty(c.getValue().getInsertions()).asObject());
+        insertions.setText("Insertions");
+
+        TableColumn<ClassificationDTO, Integer> deletions = new TableColumn<>();
+        deletions.setPrefWidth(185);
+        deletions.setCellValueFactory(c -> new SimpleIntegerProperty(c.getValue().getDeletions()).asObject());
+        deletions.setText("Deletions");
+
+        node.getColumns().addAll(committerName, commits, insertions, deletions);
+        return node;
+    }
+
+    public List<ClassificationDTO> createDataSets(List<CommitDetails> commitDetails, DateTime from, DateTime to) {
+        List<ClassificationDTO> classificationDTOS = new ArrayList<>();
+
+        getAuthors(commitDetails, from, to)
+                .forEach(author -> {
+                    List<CommitDetails> authorsCommits = getAuthorsCommits(commitDetails, author, from, to);
+                    classificationDTOS.add(new ClassificationDTO(author, authorsCommits.size(),
+                            authorsCommits.stream().mapToInt(cd -> cd.getFiles().stream()
+                                    .mapToInt(FileDiffs::getInsertions).sum()).sum(),
+                            authorsCommits.stream().mapToInt(cd -> cd.getFiles().stream()
+                                    .mapToInt(FileDiffs::getDeletions).sum()).sum()
+                            ));
+                });
+
+        return classificationDTOS;
+    }
 
     public List<String> createDataSet(List<CommitDetails> commitDetails, DateTime from, DateTime to) {
         Map<String, Integer> commits = countCommits(commitDetails, from, to);
@@ -66,19 +95,6 @@ public class ClassificationModule extends AbstractAnalyzerModule {
         deletions.entrySet().stream().sorted(reverseOrder(Map.Entry.comparingByValue())).forEach(c -> dataSet.add(String.format("%d. %s %d", i.getAndIncrement(), c.getKey(), c.getValue())));
 
         return dataSet;
-    }
-
-    private BufferedImage createImageFromText(List<String> dataSet){
-        BufferedImage bufferedImage = new BufferedImage(600, 400, BufferedImage.TYPE_INT_RGB);
-        Graphics g = bufferedImage.getGraphics();
-        final int vertPadding = 25;
-        final int horPadding = 100;
-        g.setFont(new Font("Arial", Font.PLAIN, vertPadding - 5));
-
-        AtomicInteger start = new AtomicInteger(30);
-        dataSet.forEach(s -> g.drawString(s, horPadding, start.getAndAdd(vertPadding)));
-
-        return bufferedImage;
     }
 
 	public Map<String, Integer> countCommits(List<CommitDetails> commitDetails, DateTime from, DateTime to) {

@@ -16,20 +16,17 @@ public class OptionsController extends AbstractController {
 
     @Inject
     public OptionsController(Provider<MainMenuController> mainMenuController){
-
        this.scene = createScene();
        this.mainMenuController = mainMenuController;
     }
 
     @Override
     public void show() {
-
         changeScene(this.scene);
     }
 
     @Override
     Scene createScene() {
-
         GridPane optionsGrid = getAbstractGrid();
 
         VBox optionsBox = new VBox(50);

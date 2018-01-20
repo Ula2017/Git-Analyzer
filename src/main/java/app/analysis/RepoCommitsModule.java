@@ -1,6 +1,9 @@
 package app.analysis;
 import app.structures.CommitDetails;
 import app.structures.GUIDetails;
+import javafx.scene.Node;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
@@ -9,7 +12,9 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.joda.time.DateTime;
 import org.joda.time.Hours;
+
 import java.io.File;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,12 +29,15 @@ public class RepoCommitsModule extends AbstractAnalyzerModule {
 	public String toString() {
 		return "Commits in repository";
 	}
-   
+
     @Override
-    public File generateFile(List<CommitDetails> commitDetails, GUIDetails guiDetails) throws CreateImageException {
-        return createDiagram(commitDetails, guiDetails.getFrom(), guiDetails.getTo());
+    public Node generateNode(List<CommitDetails> commitDetails, GUIDetails guiDetails) throws CreateImageException, MalformedURLException {
+        ImageView node = new ImageView();
+        node.setFitWidth(width);
+        node.setImage(new Image(createDiagram(commitDetails, guiDetails.getFrom(), guiDetails.getTo()).toURI().toURL().toString()));
+        return node;
     }
-       
+
     private int createListWithCommits(List<CommitDetails> commitDetails) {
     	commitsDateTimeList = new ArrayList<DateTime>();
               

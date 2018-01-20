@@ -5,15 +5,11 @@ import java.io.ByteArrayOutputStream;
 import java.util.stream.Stream;
 
 public class FileDiffs {
-
     private String fileName;
     private int insertions;
     private int deletions;
     private int linesNumber;
     private ByteArrayOutputStream fileContent;
-
-    public FileDiffs(){
-    }
 
     public void setInformation(String fileName, int insertions, int deletions){
         this.fileName = fileName;

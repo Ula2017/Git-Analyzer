@@ -2,6 +2,9 @@ package app.analysis;
 
 import app.structures.CommitDetails;
 import app.structures.GUIDetails;
+import javafx.scene.Node;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
@@ -12,6 +15,7 @@ import org.joda.time.DateTime;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -25,8 +29,11 @@ public class MonthlyAmmountOfCommitersModule extends AbstractAnalyzerModule {
     }
 
     @Override
-    public File generateFile(List<CommitDetails> commitDetails, GUIDetails guiDetails) throws CreateImageException {
-        return createFileWithChart(commitDetails, guiDetails.getFrom(), guiDetails.getTo(), getPathForOutput());
+    public Node generateNode(List<CommitDetails> commitDetails, GUIDetails guiDetails) throws CreateImageException, MalformedURLException {
+        ImageView node = new ImageView();
+        node.setFitWidth(width);
+        node.setImage(new Image(createFileWithChart(commitDetails, guiDetails.getFrom(), guiDetails.getTo(), getPathForOutput()).toURI().toURL().toString()));
+        return node;
     }
 
     public File createFileWithChart(List<CommitDetails> commitDetails, DateTime from, DateTime to, String outputPath) throws CreateImageException {
