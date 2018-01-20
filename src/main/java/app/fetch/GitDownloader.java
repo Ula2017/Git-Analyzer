@@ -1,43 +1,40 @@
 package app.fetch;
 
 import com.google.common.io.Files;
+import javafx.application.Platform;
+import javafx.beans.property.SimpleDoubleProperty;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.Ref;
+
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.InvalidRemoteException;
-import org.eclipse.jgit.api.errors.TransportException;
-import org.eclipse.jgit.lib.Ref;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
-
-
 public class GitDownloader implements RepoDownloader {
-
     public GitDownloader(){}
 
     @Override
-    public List<Git> getRepository(String repoUrl) throws Exception {
+    public List<Git> getRepository(String repoUrl, SimpleDoubleProperty progress) throws Exception {
         Git git;
         List<String> branches = getBranchesToClone(repoUrl);
+        final int branchesCount = branches.size();
         List<Git> gits = new ArrayList<>();
         try{
-            for( String branch : branches) {
+            for(int i = 0; i < branchesCount; i++){
                 File file = Files.createTempDir();
                 git = Git.cloneRepository()
                         .setURI(repoUrl)
                         .setDirectory(file)
-                        .setBranch(branch)
+                        .setBranch(branches.get(i))
                         .call();
                 git.getRepository().close();
                 git.close();
                 gits.add(git);
+                final int ind = i;
+                Platform.runLater(()-> progress.set(1.0*(ind+1)/branchesCount));
             }
-
         }
         catch (GitAPIException e) {
             throw new Exception("Problem with cloning remote repository.");
@@ -61,5 +58,4 @@ public class GitDownloader implements RepoDownloader {
         }
         return branches;
     }
-
-    }
+}

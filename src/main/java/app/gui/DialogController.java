@@ -13,7 +13,6 @@ public class DialogController {
     public DialogController(){ }
 
     public void createExceptionDialog( Exception ex){
-
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Exception Dialog");
         alert.setHeaderText(null);

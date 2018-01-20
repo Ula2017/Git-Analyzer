@@ -5,16 +5,18 @@ import app.fetch.RepoDownloader;
 import app.structures.CommitDetails;
 import app.structures.FileDiffs;
 import com.google.inject.Provider;
+import javafx.beans.property.SimpleDoubleProperty;
 import org.eclipse.jgit.api.Git;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import static org.junit.Assert.*;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -30,6 +32,8 @@ public class FetcherTest {
     private CommitDetails com;
     @Mock
     private FileDiffs fd;
+    @Mock
+    SimpleDoubleProperty progress;
 
     @Before
     public void setup() {
@@ -38,8 +42,8 @@ public class FetcherTest {
 
     @Test
     public void prepareDownloader() throws Exception {
-        Mockito.when(repoDownloader.getRepository("mama")).thenReturn(git);
-        f.prepareDownloader("mama");
+        Mockito.when(repoDownloader.getRepository("mama", progress)).thenReturn(git);
+        f.prepareDownloader("mama", progress);
         assertEquals(f.getGit(),git);
     }
 

@@ -3,6 +3,7 @@ package app.fetch;
 import app.structures.CommitDetails;
 import app.structures.FileDiffs;
 import com.google.inject.*;
+import javafx.beans.property.SimpleDoubleProperty;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -46,9 +47,9 @@ public class Fetcher {
         this.fileDiffsProvider = fileDiffsProvider;
     }
 
-    public void prepareDownloader(String url) throws Exception {
+    public void prepareDownloader(String url, SimpleDoubleProperty progress) throws Exception {
         this.commitDetailsList = new ArrayList<>();
-        this.git = gitDownloader.getRepository(url);
+        this.git = gitDownloader.getRepository(url, progress);
     }
 
     public List<Git> getGit() {
