@@ -1,8 +1,6 @@
 package app.structures;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.util.stream.Stream;
 
 public class FileDiffs {
     private String fileName;

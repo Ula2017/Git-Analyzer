@@ -14,6 +14,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -46,6 +47,15 @@ public class TestRepository{
     private Provider<FileDiffs> fileDiffsProvider;
 
     @Mock
+    private GitRevCommits gitRevCommits;
+
+    @Mock
+    private CommitDetails commitDetails;
+
+    @Mock
+    private FileDiffs fileDiffs;
+
+    @Mock
     private RepoDownloader repoDownloader;
 
     @Mock
@@ -62,11 +72,9 @@ public class TestRepository{
     }
 
     @Test
-    @Ignore
     public void testRealRepo() throws Exception {
+        List<RevCommit> revCommits = new ArrayList<>();
         Git git = Git.init().setDirectory(new File("C:\\tmpRepo")).call();
-        assertNotNull( git.getRepository().getRef(Constants.HEAD));
-        assertTrue(git.status().call().isClean());
 
         Repository repository = git.getRepository();
 
@@ -79,29 +87,36 @@ public class TestRepository{
         git.add().addFilepattern("testFile").call();
 
         // and then commit the changes
-        git.commit().setMessage("Commit1-Adding testFile").call();
+        RevCommit revCommit1 = git.commit().setMessage("Commit1-Adding testFile").call();
 
         Path file = new File("C:\\tmpRepo\\testFile2").toPath();
         byte[] buf = "testLine\n testLine2".getBytes();
         Files.write(file, buf);
 
         git.add().addFilepattern("testFile2").call();
-        git.commit().setMessage("Commit2-Adding testFile2").call();
+        RevCommit revCommit2 = git.commit().setMessage("Commit2-Adding testFile2").call();
 
         buf = "testLine\n testLine2\n adddedLine".getBytes();
         Files.write(file, buf);
 
         git.add().addFilepattern("testFile2").call();
-        git.commit().setMessage("Commit3-Changing testFile2").call();
+        RevCommit rev3 = git.commit().setMessage("Commit3-Changing testFile2").call();
 
         gitList.add(git);
 
+        revCommits.add(rev3);
+        revCommits.add(revCommit1);
+        revCommits.add(revCommit2);
+
         Mockito.when(repoDownloader.getRepository("mama", progress)).thenReturn(gitList);
-        //Mockito.when(gitRevCommitsProvider.get()).thenReturn()
+        Mockito.when(commitDetailsProvider.get()).thenReturn(commitDetails);
+        Mockito.when(fileDiffsProvider.get()).thenReturn(fileDiffs);
+        Mockito.when(gitRevCommitsProvider.get()).thenReturn(gitRevCommits);
+        Mockito.when(gitRevCommits.revCommitList(git)).thenReturn(revCommits);
 
         fetcher.prepareDownloader("mama", progress);
 
-        fetcher.getAllCommits();
+        System.out.println(fetcher.getAllCommits());
 
 
 

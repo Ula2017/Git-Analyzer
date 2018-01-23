@@ -15,6 +15,10 @@ public class CommitDetails {
     public CommitDetails(){
     }
 
+    public void setMessage(String message){
+        this.commitMessage = message;
+    }
+
     public void addFile(FileDiffs file){
         this.files.add(file);
     }
