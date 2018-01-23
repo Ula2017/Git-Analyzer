@@ -28,7 +28,7 @@ public class ModulesMenuController extends AbstractController {
     private String moduleName;
     private DatePicker fromDatePicker, toDatePicker;
     private TextField authorTextField;
-    private Button moduleGenerateButton, moduleChangeRepositoryButton;
+    private Button moduleGenerateButton, moduleChangeRepositoryButton, backButton;
     private TextField  committerName;
     private ComboBox comboBox;
     private Set<AbstractAnalyzerModule> analyzerModuleSet;
@@ -101,23 +101,26 @@ public class ModulesMenuController extends AbstractController {
      
         moduleChangeRepositoryButton = getButton("Change Repository", 450, 55,
                 () -> openRepositoryController.get().show());
+        backButton = getButton("BACK", 450, 55,
+        		() -> showAccurateFields(modulesMenuBox) );
+        
         authorTextField = new TextField();
         authorTextField.setPrefHeight(40);
         showAccurateFields(modulesMenuBox);
 
         return new Scene(modulesMenuGrid, primaryStage.getWidth(), primaryStage.getHeight());
-    }
+}
 
     private void showAccurateFields(VBox moduleBox){
         ObservableList<Node> children = moduleBox.getChildren();
-        children.removeAll(comboBox, fromDatePicker, toDatePicker, moduleGenerateButton, moduleChangeRepositoryButton);
+        children.removeAll(comboBox, fromDatePicker, toDatePicker, moduleGenerateButton, moduleChangeRepositoryButton, committerName, backButton);
         children.addAll(comboBox, fromDatePicker, toDatePicker, moduleGenerateButton, moduleChangeRepositoryButton);  
     }
     
     private void showAccurateFields(String moduleName, VBox moduleBox){
         ObservableList<Node> children = moduleBox.getChildren();
-        children.removeAll(comboBox, fromDatePicker, toDatePicker, committerName, moduleGenerateButton, moduleChangeRepositoryButton);
-        children.addAll(fromDatePicker, toDatePicker, committerName, moduleGenerateButton, moduleChangeRepositoryButton);
+        children.removeAll(comboBox, fromDatePicker, toDatePicker, committerName, moduleGenerateButton, moduleChangeRepositoryButton,backButton);
+        children.addAll(fromDatePicker, toDatePicker, committerName, moduleGenerateButton, moduleChangeRepositoryButton, backButton);
 
     }
 }
