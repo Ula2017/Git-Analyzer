@@ -8,10 +8,7 @@ import javafx.scene.image.ImageView;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.SymbolAxis;
-import org.jfree.data.xy.XYDataset;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.data.category.DefaultCategoryDataset;
 import org.joda.time.DateTime;
 import org.joda.time.Hours;
 
@@ -27,7 +24,7 @@ public class AuthorsCommitsAnalyzerModule extends AbstractAnalyzerModule {
     private List<DateTime> commitsInPeriodOfTimeList;
     private DateTime projectStartDate;
     private DateTime projectEndDate;
-    private static int numberOfIntervals = 10;
+    private static int numberOfIntervals = 3;
 
     @Override
     public String toString(){
@@ -76,15 +73,14 @@ public class AuthorsCommitsAnalyzerModule extends AbstractAnalyzerModule {
         projectEndDate = commitDetails.get(0).getCommitDate();
 		
         createListWithCommits(commitDetails, committerName);
-        XYDataset dataset = createDataset(committerName, symbolAxis);
-        SymbolAxis sa = new SymbolAxis("AxisLabel", symbolAxis.toArray(new String[0]));
-        
-        JFreeChart chart = ChartFactory.createScatterPlot(
+        DefaultCategoryDataset dataset = createDataset(committerName, symbolAxis);
+                
+        JFreeChart chart = ChartFactory.createBarChart(
                 "Number of commits of a chosen user.",
                 "Date",
                 "Number of commits",
                 dataset);
-        chart.getXYPlot().setDomainAxis(sa);
+
 
         File outputFile = new File(outputPath);
         try {
@@ -96,24 +92,20 @@ public class AuthorsCommitsAnalyzerModule extends AbstractAnalyzerModule {
 		return outputFile;
 	}
 	
-	private XYDataset createDataset(String committerName, List<String> symbolAxis){
-        XYSeries series = new XYSeries("Number of commits for " + committerName);	
+	private DefaultCategoryDataset createDataset(String committerName, List<String> symbolAxis){
+		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         int interval = (Hours.hoursBetween(projectStartDate, projectEndDate).getHours() ) / numberOfIntervals;
         
         DateTime periodStartDate = projectStartDate;
-        int numberOfCommitsInPeriod = 0;
+        Integer numberOfCommitsInPeriod = 0;
         
-        int i = 0;
         while (periodStartDate.compareTo(projectEndDate) < 0){		
         	numberOfCommitsInPeriod = findCommitsInPeriodOfTime(periodStartDate, periodStartDate.plusHours(interval));   	
         	symbolAxis.add(String.format("%d/%d/%d", periodStartDate.getDayOfMonth(), periodStartDate.getMonthOfYear()%100, periodStartDate.getYear()%10000));
-        	series.add(i, numberOfCommitsInPeriod);
+        	dataset.addValue(numberOfCommitsInPeriod, committerName, String.format("%d/%d/%d", periodStartDate.getDayOfMonth(), periodStartDate.getMonthOfYear()%100, periodStartDate.getYear()%10000));
         	periodStartDate = periodStartDate.plusHours(interval);
-        	i++;
         }
-            
-        XYSeriesCollection dataSet = new XYSeriesCollection();
-        dataSet.addSeries(series);
-        return dataSet;
+
+        return dataset;
     }
 }
