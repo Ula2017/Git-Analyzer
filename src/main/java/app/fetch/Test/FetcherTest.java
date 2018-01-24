@@ -61,11 +61,9 @@ public class FetcherTest {
     private List<CommitDetails> commitDetailsListNotMocked = new ArrayList<>();
     @Mock
     private Provider<CommitDetails> com;
-    @Mock
-    private Provider<FileDiffs> fd;
 
     @Mock
-    SimpleDoubleProperty progress;
+     private SimpleDoubleProperty progress;
 
     @Mock
     private Provider<GitRevCommits> gitRevCommitsProvider;
@@ -74,62 +72,17 @@ public class FetcherTest {
     private CommitDetails commitDetailsObject;
 
     @Mock
-    private CommitDetails commitDetailsMock;
-
-    @Mock
-    private CommitDetails commitDetailsMock2;
-
-    //@Mock
-    private List<CommitDetails> commitDetails = new ArrayList<>();
-
-    @Mock
-    private BranchConfig branchConfig;
-
-    @Mock
     private Repository repository;
 
     @Mock
     private GitRevCommits gitRevCommits;
-
-    @Mock
-    private DiffEntry diffEntryMock;
-
-    @Mock
-    private AbstractTreeIterator oldTree;
-
-    @Mock
-    private CanonicalTreeParser newTree;
-
-    @Mock
-    private DiffCommand diffCommand;
-
-    @Mock
-    private RevTree tree;
-
-    @Mock
-    private RevWalk revWalk;
-
-    @Mock
-    private AnyObjectId anyObjectId;
-
-    @Mock
-    private ObjectId objectId;
-
-    @Mock
-    private RevObject revObject;
-
-    //@Mock
-    private List<DiffEntry> diffEntriesMockList = new ArrayList<>();
-
-    @Mock
-    private CanonicalTreeParser canonicalTreeParser;
 
     private CommitDetails commitDetailsNotMock = new CommitDetails();
 
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(FetcherTest.class);
-        f = new Fetcher(repoDownloader, com, fd, gitRevCommitsProvider);
+        f = new Fetcher(repoDownloader, com, gitRevCommitsProvider);
     }
 
     @Test
@@ -170,15 +123,19 @@ public class FetcherTest {
     @Test
     public void testGenerateCommitDetailsList() throws Exception {
 
-        commitDetailsNotMock.setPrimaryInformation(new DateTime(2000, 11, 11, 11, 11, 11, 11), "auth1", "commess", "branch1");
+        commitDetailsNotMock.setPrimaryInformation(new DateTime(2000, 11, 11, 11, 11, 11, 11),
+                "auth1", "commess", "branch1");
         commitDetailsList.add(commitDetailsNotMock);
         commitDetailsListNotMocked.add(commitDetailsNotMock);
-        commitDetailsNotMock.setPrimaryInformation(new DateTime(2000, 11, 11, 11, 11, 11, 11), "auth2", "commess2", "branch2");
+        commitDetailsNotMock.setPrimaryInformation(new DateTime(2000, 11, 11, 11, 11, 11, 11),
+                "auth2", "commess2", "branch2");
         commitDetailsList.add(commitDetailsNotMock);
         commitDetailsListNotMocked.add(commitDetailsNotMock);
         Mockito.when(com.get()).thenReturn(commitDetailsObject);
-        revCommitMock1 = createDetailedCommit("Author1", "ComMess1", new Date(2000, 11, 11, 11, 11, 11));
-        revCommitMock2 = createDetailedCommit("author2", "ComMess1", new Date(2010, 11, 11, 11 ,1));
+        revCommitMock1 = createDetailedCommit("Author1", "ComMess1", new Date(
+                2000, 11, 11, 11, 11, 11));
+        revCommitMock2 = createDetailedCommit("author2", "ComMess1", new Date(
+                2010, 11, 11, 11 ,1));
         revCommits.add(revCommitMock1);
         revCommits.add(revCommitMock2);
 
@@ -188,10 +145,14 @@ public class FetcherTest {
         Mockito.when(repoDownloader.getRepository("mama", progress)).thenReturn(git);
         f.prepareDownloader("mama", progress);
         Mockito.when(gitRevCommits.revCommitList(git.get(0))).thenReturn(revCommits);
-        Mockito.when(gitRevCommits.addDiffsToCommit(revCommitMock1, commitDetailsObject, gitObject)).thenReturn(commitDetailsNotMock);
-        Mockito.when(gitRevCommits.addDiffsToCommit(revCommitMock2, commitDetailsObject, gitObject)).thenReturn(commitDetailsNotMock);
-        Mockito.when(gitRevCommits.addLinesForAllFiles(revCommitMock1, commitDetailsNotMock, gitObject)).thenReturn(commitDetailsNotMock);
-        Mockito.when(gitRevCommits.addLinesForAllFiles(revCommitMock2, commitDetailsNotMock, gitObject)).thenReturn(commitDetailsNotMock);
+        Mockito.when(gitRevCommits.addDiffsToCommit(revCommitMock1, commitDetailsObject, gitObject))
+                .thenReturn(commitDetailsNotMock);
+        Mockito.when(gitRevCommits.addDiffsToCommit(revCommitMock2, commitDetailsObject, gitObject))
+                .thenReturn(commitDetailsNotMock);
+        Mockito.when(gitRevCommits.addLinesForAllFiles(revCommitMock1, commitDetailsNotMock, gitObject))
+                .thenReturn(commitDetailsNotMock);
+        Mockito.when(gitRevCommits.addLinesForAllFiles(revCommitMock2, commitDetailsNotMock, gitObject))
+                .thenReturn(commitDetailsNotMock);
         Mockito.when(gitRevCommitsProvider.get()).thenReturn(gitRevCommits);
 
         assertEquals(f.getAllCommits(), commitDetailsListNotMocked);
@@ -209,9 +170,12 @@ public class FetcherTest {
         //commit = revWalk.parseCommit(head);
         //Mockito.when(commit.getShortMessage()).thenReturn("trallalala");
 
-        RevCommit head = this.createDetailedCommit("auth", "commes1", new Date(2000, 11, 11, 11, 11, 11));
-        RevCommit head1 = this.createDetailedCommit("auth2", "commes2", new Date(2001, 11, 11, 11, 11, 11));
-        RevCommit head2 = this.createDetailedCommit("auth3", "commes3", new Date(2002, 11, 11, 11, 11, 11));
+        RevCommit head = this.createDetailedCommit("auth", "commes1",
+                new Date(2000, 11, 11, 11, 11, 11));
+        RevCommit head1 = this.createDetailedCommit("auth2", "commes2",
+                new Date(2001, 11, 11, 11, 11, 11));
+        RevCommit head2 = this.createDetailedCommit("auth3", "commes3",
+                new Date(2002, 11, 11, 11, 11, 11));
         head.getParents()[0] = head1;
         head1.getParents()[0] = head2;
 
@@ -252,15 +216,7 @@ public class FetcherTest {
 ////                new Exception("Problem occured getting amount of commit per branch. "));
 ////        assertEquals(f.getAllCommits(), "Problem occured getting amount of commit per branch. ");
 //    }
-//
-//    @Test
-//    public void getGit(){
-//    }
-//
-//    @Test
-//    public void getAllCommits(){
-//    }
-//
+
 //    @Test
 //    public void getCommitsFromDateRange(){
 //    }

@@ -56,7 +56,7 @@ public class TestRepositoryPieces {
             return fileDiffs;
         }
     };
-    private final static GitRevCommits gitRevCommits = new GitRevCommits(commitDetailsProvider, fileDiffsProvider);
+    private final static GitRevCommits gitRevCommits = new GitRevCommits( fileDiffsProvider);
     private final static CommitDetails commitDetails = new CommitDetails();
     private final static FileDiffs fileDiffs = new FileDiffs();
     @Mock
@@ -71,7 +71,7 @@ public class TestRepositoryPieces {
     public void setup() throws Exception {
         MockitoAnnotations.initMocks(FetcherTest.class);
         git = Git.init().setDirectory(tempFolder.getRoot()).call();
-        fetcher = new Fetcher(repoDownloader, commitDetailsProvider, fileDiffsProvider, gitRevCommitsProvider);
+        fetcher = new Fetcher(repoDownloader, commitDetailsProvider,gitRevCommitsProvider);
         repository = git.getRepository();
         gitList.add(git);
         Mockito.when(repoDownloader.getRepository("mama", progress)).thenReturn(gitList);
@@ -122,12 +122,11 @@ public class TestRepositoryPieces {
 
     }
 
-    private File createFile(String name, String content) throws IOException {
+    private void createFile(String name, String content) throws IOException {
         File file = new File(git.getRepository().getWorkTree(), name);
         try(FileOutputStream outputStream = new FileOutputStream(file)){
             outputStream.write(content.getBytes());
         }
-        return file;
     }
 
 }

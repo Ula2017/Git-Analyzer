@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface RepoDownloader {
 
-    public List<Git> getRepository(String repoUrl, SimpleDoubleProperty progress) throws Exception;
+    List<Git> getRepository(String repoUrl, SimpleDoubleProperty progress) throws Exception;
 
 }

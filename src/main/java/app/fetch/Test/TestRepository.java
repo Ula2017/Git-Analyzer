@@ -11,6 +11,7 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Repository;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -49,7 +50,7 @@ public class TestRepository{
             return fileDiffs;
         }
     };
-    private GitRevCommits gitRevCommits = new GitRevCommits(commitDetailsProvider, fileDiffsProvider);
+    private GitRevCommits gitRevCommits = new GitRevCommits( fileDiffsProvider);
     private static CommitDetails commitDetails = new CommitDetails();
     private static FileDiffs fileDiffs = new FileDiffs();
     @Mock
@@ -63,7 +64,7 @@ public class TestRepository{
     public void setup() throws Exception {
         MockitoAnnotations.initMocks(FetcherTest.class);
         git = Git.init().setDirectory(new File("C:\\tmpRepo")).call();
-        fetcher = new Fetcher(repoDownloader, commitDetailsProvider, fileDiffsProvider, gitRevCommitsProvider);
+        fetcher = new Fetcher(repoDownloader, commitDetailsProvider,gitRevCommitsProvider);
         Mockito.when(repoDownloader.getRepository("mama", progress)).thenReturn(gitList);
         fetcher.prepareDownloader("mama", progress);
         gitList.add(git);
@@ -87,6 +88,7 @@ public class TestRepository{
         folder.delete();
     }
     @Test
+    @Ignore
     public void testRealRepo() throws Exception {
         Repository repository = git.getRepository();
         File myFile = new File(repository.getDirectory().getParent(), "testFile");

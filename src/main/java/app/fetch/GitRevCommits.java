@@ -13,37 +13,29 @@ import org.eclipse.jgit.diff.Edit;
 import org.eclipse.jgit.diff.EditList;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
-import org.joda.time.DateTime;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class GitRevCommits {
 
-    private Provider<CommitDetails> commitDetailsProvider;
     private Provider<FileDiffs> fileDiffsProvider;
 
 
     @Inject
-    public GitRevCommits(Provider<CommitDetails> commitDetailsProvider, Provider<FileDiffs> fileDiffsProvider){
-        this.commitDetailsProvider = commitDetailsProvider;
+    public GitRevCommits(Provider<FileDiffs> fileDiffsProvider){
         this.fileDiffsProvider = fileDiffsProvider;
     }
 
     public Iterable<RevCommit> revCommitList(Git git) throws GitAPIException {
         return git.log().call();
     }
-
 
     public CommitDetails addLinesForAllFiles(RevCommit rev, CommitDetails commit, Git git ) throws Exception {
 
@@ -128,7 +120,7 @@ public class GitRevCommits {
         return commit;
     }
 
-    public CanonicalTreeParser getCanonicalTreeParser(ObjectId commitId, Repository repository) throws IOException {
+    private CanonicalTreeParser getCanonicalTreeParser(ObjectId commitId, Repository repository) throws IOException {
         try( RevWalk walk = new RevWalk(repository)) {
             RevCommit commit = walk.parseCommit( commitId );
             ObjectId treeId = commit.getTree().getId();
@@ -138,26 +130,4 @@ public class GitRevCommits {
         }
     }
 
-
-//    public Map<String, Integer> getAmountOfBranchCommits() throws Exception {
-//        List<Ref> call;
-//        Map<String, Integer> map = new HashMap<>();
-//        try {
-//            for(Git g: git) {
-//                call = g.branchList().call();
-//                for (Ref ref : call) {
-//                    int i = 0;
-//
-//                    for (RevCommit commit : g.log().add(g.getRepository().resolve(ref.getName())).call()) {
-//                        i++;
-//                    }
-//                    map.put(ref.getName(), i);
-//                }
-//            }
-//
-//        } catch (GitAPIException | IOException e) {
-//            throw new Exception("Problem occured getting amount of commit per branch. ");
-//        }
-//        return map;
-//    }
 }
