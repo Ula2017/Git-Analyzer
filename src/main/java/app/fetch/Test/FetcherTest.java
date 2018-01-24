@@ -93,33 +93,6 @@ public class FetcherTest {
     }
 
 
-    @Test(expected = Exception.class)
-    @Ignore
-    public void getBranchCommit() throws Exception {
-
-//        Mockito.when(f.getBranchCommit()).
-//        Mockito.when(git.branchList().call()).thenThrow(
-//                new Exception("Problem occured getting amount of commit per branch. "));
-//        assertEquals(f.getBranchCommit(), "Problem occured getting amount of commit per branch. ");
-//        Mockito.when(git.log()).thenThrow(
-//                new Exception("Problem occured getting amount of commit per branch. "));
-//        assertEquals(f.getAllCommits(), "Problem occured getting amount of commit per branch. ");
-    }
-
-
-    @Test
-    @Ignore
-    public void testAddFileDiffs() throws Exception {
-
-        RevCommit head = this.createDetailedCommit("auth", "commes1", new Date(2000, 11, 11, 11, 11, 11));
-        RevCommit head1 = this.createDetailedCommit("auth2", "commes2", new Date(2001, 11, 11, 11, 11, 11));
-        RevCommit head2 = this.createDetailedCommit("auth3", "commes3", new Date(2002, 11, 11, 11, 11, 11));
-        head.getParents()[0] = head1;
-        head1.getParents()[0] = head2;
-        System.out.println(head.getTree().getId());
-
-    }
-
     @Test
     public void testGenerateCommitDetailsList() throws Exception {
 
@@ -159,31 +132,6 @@ public class FetcherTest {
 
     }
 
-    @Test
-    @Ignore
-    public void testRevWalk() throws Exception {
-//        ObjectId head = mock(ObjectId.class);
-//        RevCommit commit = mock(RevCommit.class);
-//        RevWalk revWalk = mockRevWalk();
-//        when(revWalk.parseCommit(head)).thenReturn(commit);
-
-        //commit = revWalk.parseCommit(head);
-        //Mockito.when(commit.getShortMessage()).thenReturn("trallalala");
-
-        RevCommit head = this.createDetailedCommit("auth", "commes1",
-                new Date(2000, 11, 11, 11, 11, 11));
-        RevCommit head1 = this.createDetailedCommit("auth2", "commes2",
-                new Date(2001, 11, 11, 11, 11, 11));
-        RevCommit head2 = this.createDetailedCommit("auth3", "commes3",
-                new Date(2002, 11, 11, 11, 11, 11));
-        head.getParents()[0] = head1;
-        head1.getParents()[0] = head2;
-
-        System.out.println(head.getTree());
-
-    }
-
-
     private RevCommit createDetailedCommit(String author, String commitMessage, Date date) {
         StringBuilder parents = new StringBuilder();
         int numParents = 1;
@@ -205,26 +153,6 @@ public class FetcherTest {
         return RevCommit.parse(commitData.getBytes());
 
     }
-//
-//    @Test(expected = Exception.class)
-//    public void getBranchCommit() throws Exception {
-////        Mockito.when(f.getBranchCommit()).
-////        Mockito.when(git.branchList().call()).thenThrow(
-////                new Exception("Problem occured getting amount of commit per branch. "));
-////        assertEquals(f.getBranchCommit(), "Problem occured getting amount of commit per branch. ");
-////        Mockito.when(git.log()).thenThrow(
-////                new Exception("Problem occured getting amount of commit per branch. "));
-////        assertEquals(f.getAllCommits(), "Problem occured getting amount of commit per branch. ");
-//    }
-
-//    @Test
-//    public void getCommitsFromDateRange(){
-//    }
-////    public FetcherTest() {
-////        MockitoAnnotations.initMocks(this);
-////
-////    }
-
 
 
 }

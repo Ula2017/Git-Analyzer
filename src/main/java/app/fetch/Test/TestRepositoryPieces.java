@@ -38,27 +38,27 @@ public class TestRepositoryPieces {
     public TemporaryFolder tempFolder = new TemporaryFolder();
 
 
-    private final static Provider<GitRevCommits> gitRevCommitsProvider = new Provider<GitRevCommits>() {
+    private Provider<GitRevCommits> gitRevCommitsProvider= new Provider<GitRevCommits>() {
         @Override
         public GitRevCommits get() {
             return gitRevCommits;
         }
     };
-    private final static Provider<CommitDetails> commitDetailsProvider = new Provider<CommitDetails>() {
+    private Provider<CommitDetails> commitDetailsProvider = new Provider<CommitDetails>() {
         @Override
         public CommitDetails get() {
             return commitDetails;
         }
     };
-    private final static Provider<FileDiffs> fileDiffsProvider = new Provider<FileDiffs>() {
+    private Provider<FileDiffs> fileDiffsProvider = new Provider<FileDiffs>() {
         @Override
         public FileDiffs get() {
             return fileDiffs;
         }
     };
-    private final static GitRevCommits gitRevCommits = new GitRevCommits( fileDiffsProvider);
-    private final static CommitDetails commitDetails = new CommitDetails();
-    private final static FileDiffs fileDiffs = new FileDiffs();
+    private GitRevCommits gitRevCommits = new GitRevCommits( fileDiffsProvider);
+    private CommitDetails commitDetails = new CommitDetails();
+    private FileDiffs fileDiffs = new FileDiffs();
     @Mock
     private RepoDownloader repoDownloader;
     @Mock
@@ -107,7 +107,7 @@ public class TestRepositoryPieces {
 
     @Test
     public void testDiffs() throws Exception {
-        RevCommit commitOld = createRevCommit("exampleFile1", "Line1\n Line2\n Line3\n Line4\n", "commitFirst");
+        createRevCommit("exampleFile1", "Line1\n Line2\n Line3\n Line4\n", "commitFirst");
         RevCommit commitNew = createRevCommit("exampleFile1", "Line1\n Line2\n LineCompletlyNew\n LineNew\n LineNew\n", "commitSeconf");
         CommitDetails commitDetailsNew = new CommitDetails();
         CommitDetails commitDetails = gitRevCommits.addDiffsToCommit(commitNew, commitDetailsNew, git);

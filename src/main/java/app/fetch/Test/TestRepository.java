@@ -38,18 +38,8 @@ public class TestRepository{
             return gitRevCommits;
         }
     };
-    private Provider<CommitDetails> commitDetailsProvider = new Provider<CommitDetails>() {
-        @Override
-        public CommitDetails get() {
-            return commitDetails;
-        }
-    };
-    private Provider<FileDiffs> fileDiffsProvider = new Provider<FileDiffs>() {
-        @Override
-        public FileDiffs get() {
-            return fileDiffs;
-        }
-    };
+    private Provider<CommitDetails> commitDetailsProvider = () -> commitDetails;
+    private Provider<FileDiffs> fileDiffsProvider = () -> fileDiffs;
     private GitRevCommits gitRevCommits = new GitRevCommits( fileDiffsProvider);
     private static CommitDetails commitDetails = new CommitDetails();
     private static FileDiffs fileDiffs = new FileDiffs();
@@ -88,7 +78,6 @@ public class TestRepository{
         folder.delete();
     }
     @Test
-    @Ignore
     public void testRealRepo() throws Exception {
         Repository repository = git.getRepository();
         File myFile = new File(repository.getDirectory().getParent(), "testFile");
