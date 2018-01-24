@@ -10,10 +10,7 @@ import org.eclipse.jgit.api.DiffCommand;
 import javafx.beans.property.SimpleDoubleProperty;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.diff.DiffEntry;
-import org.eclipse.jgit.lib.AnyObjectId;
-import org.eclipse.jgit.lib.BranchConfig;
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevObject;
 import org.eclipse.jgit.revwalk.RevTree;
@@ -33,6 +30,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.io.IOException;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
@@ -159,8 +157,6 @@ public class FetcherTest {
     @Test
     @Ignore
     public void testAddFileDiffs() throws Exception {
-        RevCommit revCommitMock = mock(RevCommit.class);
-        Mockito.when(revCommitMock.getShortMessage()).thenReturn("ExampleMessage");
 
         RevCommit head = this.createDetailedCommit("auth", "commes1", new Date(2000, 11, 11, 11, 11, 11));
         RevCommit head1 = this.createDetailedCommit("auth2", "commes2", new Date(2001, 11, 11, 11, 11, 11));
@@ -168,10 +164,8 @@ public class FetcherTest {
         head.getParents()[0] = head1;
         head1.getParents()[0] = head2;
         System.out.println(head.getTree().getId());
-        Mockito.when(head.getTree()).thenReturn(tree);
 
     }
-
 
     @Test
     public void testGenerateCommitDetailsList() throws Exception {
@@ -182,43 +176,23 @@ public class FetcherTest {
         commitDetailsNotMock.setPrimaryInformation(new DateTime(2000, 11, 11, 11, 11, 11, 11), "auth2", "commess2", "branch2");
         commitDetailsList.add(commitDetailsNotMock);
         commitDetailsListNotMocked.add(commitDetailsNotMock);
-
-
         Mockito.when(com.get()).thenReturn(commitDetailsObject);
-
         revCommitMock1 = createDetailedCommit("Author1", "ComMess1", new Date(2000, 11, 11, 11, 11, 11));
         revCommitMock2 = createDetailedCommit("author2", "ComMess1", new Date(2010, 11, 11, 11 ,1));
-
-
         revCommits.add(revCommitMock1);
         revCommits.add(revCommitMock2);
-
-        diffEntryMock = Mockito.mock(DiffEntry.class);
-        Mockito.when(diffEntryMock.getNewPath()).thenReturn("filename");
-        diffEntriesMockList.add(diffEntryMock);
-
-        Mockito.when(diffCommand.setOldTree(oldTree)).thenReturn(diffCommand);
-        Mockito.when(diffCommand.setNewTree(newTree)).thenReturn(diffCommand);
-        Mockito.when(diffCommand.call()).thenReturn(diffEntriesMockList);
-        Mockito.when(gitObject.diff()).thenReturn(diffCommand);
-
 
         Mockito.when(repository.getBranch()).thenReturn("Branch1");
         Mockito.when(gitObject.getRepository()).thenReturn(repository);
         git.add(gitObject);
-
         Mockito.when(repoDownloader.getRepository("mama", progress)).thenReturn(git);
-
         f.prepareDownloader("mama", progress);
-
         Mockito.when(gitRevCommits.revCommitList(git.get(0))).thenReturn(revCommits);
         Mockito.when(gitRevCommits.addDiffsToCommit(revCommitMock1, commitDetailsObject, gitObject)).thenReturn(commitDetailsNotMock);
         Mockito.when(gitRevCommits.addDiffsToCommit(revCommitMock2, commitDetailsObject, gitObject)).thenReturn(commitDetailsNotMock);
-
         Mockito.when(gitRevCommits.addLinesForAllFiles(revCommitMock1, commitDetailsNotMock, gitObject)).thenReturn(commitDetailsNotMock);
         Mockito.when(gitRevCommits.addLinesForAllFiles(revCommitMock2, commitDetailsNotMock, gitObject)).thenReturn(commitDetailsNotMock);
         Mockito.when(gitRevCommitsProvider.get()).thenReturn(gitRevCommits);
-
 
         assertEquals(f.getAllCommits(), commitDetailsListNotMocked);
 

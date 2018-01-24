@@ -128,19 +128,13 @@ public class GitRevCommits {
         return commit;
     }
 
-    public CanonicalTreeParser getCanonicalTreeParser(RevCommit revCommit, Repository repository) throws Exception {
-        try (RevWalk revWalk = new RevWalk(repository)) {
-            RevTree revTree = revWalk.parseTree(revCommit.getTree().getId());
-
-            CanonicalTreeParser canonicalTreeParser = new CanonicalTreeParser();
-            ObjectReader objectReader = repository.newObjectReader();
-            canonicalTreeParser.reset(objectReader, revTree.getId());
-
-            revWalk.dispose();
-            return canonicalTreeParser;
-        }  catch (IOException e) {
-            throw new Exception("Error during getting canonicalTreeParser");
-
+    public CanonicalTreeParser getCanonicalTreeParser(ObjectId commitId, Repository repository) throws IOException {
+        try( RevWalk walk = new RevWalk(repository)) {
+            RevCommit commit = walk.parseCommit( commitId );
+            ObjectId treeId = commit.getTree().getId();
+            try( ObjectReader reader = repository.newObjectReader()) {
+                return new CanonicalTreeParser( null, reader, treeId );
+            }
         }
     }
 

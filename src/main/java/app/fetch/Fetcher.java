@@ -35,6 +35,7 @@ public class Fetcher {
     private Provider<FileDiffs> fileDiffsProvider;
     private Provider<GitRevCommits> gitRevCommitsProvider;
     private List<CommitDetails> commitDetailsList;
+    private CommitDetails commit;
 
     @Inject
     public Fetcher(RepoDownloader repoDownloader,
